@@ -19,6 +19,7 @@ A collection of my dotfiles, based on [this solution](https://www.ackama.com/blo
 
 # After restoring
 1. Install oh my fish ```curl -L https://get.oh-my.fish | fish```
-2. Install tmux plugin manager: ```git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm```
-
+2. Run ```omf install```
+3. Install tmux plugin manager: ```git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm```
+4. Run ```C-b I``` in tmux to install tpm plugins
 
