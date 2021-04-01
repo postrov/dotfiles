@@ -1,6 +1,9 @@
 ;; -*-coding: utf-8 -*-
-(setq tmp file-name-handler-alist
-      file-name-handler-alist nil)
+;; for faster load time
+(let ((file-name-handler-alist nil))
+
+(unless (>= emacs-major-version 27)
+  (load (expand-file-name "early-init.el" user-emacs-directory)))
 
 ;; own emacs lisp dir
 (defvar *local-elisp-dir* "~/.elisp")
@@ -11,8 +14,6 @@
           (setf sep "/"))
         (concat *local-elisp-dir* sep subdir))))
 
-
-
 ;; load own functions
 (load-file (local-elisp-subpath "/config/functions.el"))
 
@@ -22,12 +23,22 @@
 (defun add-local-load-path (relative-path)
   (add-to-load-path (local-elisp-subpath relative-path)))
 
-;; package/MELPA
-(require 'package)
-(add-to-list 'package-archives '("tromey" . "http://tromey.com/elpa/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(setq package-user-dir (expand-file-name "elpa/" user-emacs-directory))
-(package-initialize)
+;; package/straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
 ;; system-wide site-lisp path
 ;; (add-to-load-path "/usr/share/emacs/site-lisp" )
@@ -57,11 +68,6 @@
 
 ;; do not enter debugger when evaluating lisp expressions
 (setq eval-expression-debug-on-error nil)
-
-;; Install use-package that we require for managing all other dependencies
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
 
 ;; enable command history between sessions
 ;(use-package save-history
@@ -98,9 +104,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (helm popup async company exec-path-from-shell toml-mode yasnippet flycheck lsp-ui lsp-mode rustic selectrum which-key ac-cider js2-mode company-tern cider))))
+ )
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -108,30 +112,17 @@
  ;; If there is more than one, they won't work right.
  )
 
-
-(load-theme 'leuven t)
-
-;;; font setup
-(cond
- ((member "Cascadia Code" (font-family-list))
-  (set-face-attribute 'default nil :font "Cascadia Code PL"))
- ((member "Monaco" (font-family-list))
-  (set-face-attribute 'default nil :font "Monaco-12"))
- ((member "Inconsolata" (font-family-list))
-  (set-face-attribute 'default nil :font "Inconsolata-12"))
- ((member "Consolas" (font-family-list))
-  (set-face-attribute 'default nil :font "Consolas-11"))
- ((member "DejaVu Sans Mono" (font-family-list))
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10")))
-
-
 (use-package which-key
-  :ensure
   :init
   (which-key-mode))
 
 ;;; rust support
-(load-file (local-elisp-subpath "/rust.el"))
+(add-to-list 'auto-mode-alist'("\\.rs" . rustic-mode))
+(autoload 'rustic-mode (local-elisp-subpath "/rust.el") nil t)
+
+;;(load-file (local-elisp-subpath "/rust.el"))
+
+
 (load-file (local-elisp-subpath "/helm-init.el"))
 
-(setq file-name-handler-alist tmp)
+)

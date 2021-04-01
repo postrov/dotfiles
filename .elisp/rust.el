@@ -7,7 +7,6 @@
 ;; rustic = basic rust-mode + additions
 
 (use-package rustic
-  :ensure
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
@@ -38,7 +37,6 @@
 ;; for rust-analyzer integration
 
 (use-package lsp-mode
-  :ensure
   :commands lsp
   :custom
   ;; what to use when checking on-save. "check" is default, I prefer clippy
@@ -50,7 +48,6 @@
   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
 (use-package lsp-ui
-  :ensure
   :commands lsp-ui-mode
   :custom
   (lsp-ui-peek-always-show t)
@@ -61,21 +58,19 @@
 ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ;; inline errors
 
-(use-package flycheck :ensure)
+(use-package flycheck)
 
 
 ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ;; auto-completion and code snippets
 
 (use-package yasnippet
-  :ensure
   :config
   (yas-reload-all)
   (add-hook 'prog-mode-hook 'yas-minor-mode)
   (add-hook 'text-mode-hook 'yas-minor-mode))
 
 (use-package company
-  :ensure
   :bind
   (:map company-active-map
               ("C-n". company-select-next)
@@ -117,19 +112,17 @@
 ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ;; for Cargo.toml and other config files
 
-(use-package toml-mode :ensure)
+(use-package toml-mode)
 
 
 ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ;; setting up debugging support with dap-mode
 
 (use-package exec-path-from-shell
-  :ensure
   :init (exec-path-from-shell-initialize))
 
 (when (executable-find "lldb-mi")
   (use-package dap-mode
-    :ensure
     :config
     (dap-ui-mode)
     (dap-ui-controls-mode 1)

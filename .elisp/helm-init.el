@@ -34,7 +34,7 @@
 (defun helm/turn-on-header-line ()
   (interactive)
   (setq helm-echo-input-in-header-line t)
-  (setq helm-split-window-in-side-p t)
+  (setq helm-split-window-inside-p t)
   (helm-autoresize-mode -1)
   (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
   )
@@ -43,32 +43,32 @@
   (interactive)
   (setq helm-echo-input-in-header-line nil)
   ;;(helm-autoresize-mode 1)
-  (setq helm-split-window-in-side-p nil)
+  (setq helm-split-window-inside-p nil)
   (remove-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
   )
 
 
-(use-package helm-find
-  :config
-  (setq helm-find-noerrors t))
+;; (use-package helm-find
+;;   :config
+;;   (setq helm-find-noerrors t))
 
 
-(use-package helm-grep
-  :config
-  (setq helm-pdfgrep-default-read-command
-        "evince --page-label=%p '%f'"
-        helm-grep-default-command
-        "ack-grep -Hn --color --smart-case --no-group %e %p %f"
-        helm-grep-default-recurse-command
-        "ack-grep -H --color --smart-case --no-group %e %p %f"
-        helm-grep-ag-command
-        "rg --color=always --colors 'match:bg:yellow' --colors 'match:fg:black' --smart-case --no-heading --line-number %s %s %s"
-        helm-grep-ag-pipe-cmd-switches
-        '("--colors 'match:bg:yellow' --colors 'match:fg:black'")
-        helm-grep-git-grep-command
-        "git --no-pager grep -n%cH --color=always --exclude-standard --no-index --full-name -e %p -- %f")
-  (add-hook 'helm-grep-mode-hook 'hl-line-mode)
-  (define-key helm-grep-map   (kbd "C-M-a") 'helm/occur-which-func))
+;; (use-package helm-grep
+;;   :config
+;;   (setq helm-pdfgrep-default-read-command
+;;         "evince --page-label=%p '%f'"
+;;         helm-grep-default-command
+;;         "ack-grep -Hn --color --smart-case --no-group %e %p %f"
+;;         helm-grep-default-recurse-command
+;;         "ack-grep -H --color --smart-case --no-group %e %p %f"
+;;         helm-grep-ag-command
+;;         "rg --color=always --colors 'match:bg:yellow' --colors 'match:fg:black' --smart-case --no-heading --line-number %s %s %s"
+;;         helm-grep-ag-pipe-cmd-switches
+;;         '("--colors 'match:bg:yellow' --colors 'match:fg:black'")
+;;         helm-grep-git-grep-command
+;;         "git --no-pager grep -n%cH --color=always --exclude-standard --no-index --full-name -e %p -- %f")
+;;   (add-hook 'helm-grep-mode-hook 'hl-line-mode)
+;;   (define-key helm-grep-map   (kbd "C-M-a") 'helm/occur-which-func))
 
 
 ;;; Global-map
