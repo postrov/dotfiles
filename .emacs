@@ -80,25 +80,26 @@
 ;; forbid server raising new frame
 (set-activate 'server-raise-frame nil)
 
-;;; company mode
-(set-activate 'company-idle-delay 0.25)
-(set-activate 'company-minimum-prefix-length 2)
 
-;;; CIDER
-(add-hook 'cider-repl-mode-hook #'subword-mode)
-(add-hook 'cider-repl-mode-hook #'company-mode)
+(use-package company
+  :defer t
+  :config
+  (set-activate 'company-idle-delay 0.25)
+  (set-activate 'company-minimum-prefix-length 2))
 
-(add-hook 'clojure-mode-hook #'subword-mode)
-(add-hook 'clojure-mode-hook #'company-mode)
+(use-package clojure-mode
+  :mode (("\\.clj\\'" . clojure-mode)
+         ("\\.edn\\'" . clojure-mode))
+  :init
+  (add-hook 'clojure-mode-hook #'subword-mode)
+  (add-hook 'clojure-mode-hook #'company-mode))
 
+(use-package cider
+  :defer t)
+  ;; :init
+  ;; (add-hook 'cider-repl-mode-hook #'subword-mode)
+  ;; (add-hook 'cider-repl-mode-hook #'company-mode))
 
-;; TERN
-(add-to-list 'load-path "~/js/tern/emacs")
-(autoload 'tern-mode "tern.el" nil t)
-
-
-;; JS2 mode
-(add-to-list 'auto-mode-alist '("\\.js" . js2-mode))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
