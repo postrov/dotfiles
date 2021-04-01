@@ -1,4 +1,6 @@
 ;; -*-coding: utf-8 -*-
+(setq tmp file-name-handler-alist
+      file-name-handler-alist nil)
 
 ;; own emacs lisp dir
 (defvar *local-elisp-dir* "~/.elisp")
@@ -9,12 +11,7 @@
           (setf sep "/"))
         (concat *local-elisp-dir* sep subdir))))
 
-;; try setting variable via appropriate custom-set function
-;; fallback to set-default
-(defun set-activate (variable value)
-  "Set VARIABLE to VALUE.  If there is a set-function, call it."
-  (custom-load-symbol variable)
-  (funcall (or (get variable 'custom-set) 'set-default) variable value))
+
 
 ;; load own functions
 (load-file (local-elisp-subpath "/config/functions.el"))
@@ -41,17 +38,6 @@
 ;; (global-set-key [(control x) (control b)] 'buffer-menu) ; removed for helm-mini
 (global-set-key "\C-x\C-m" 'execute-extended-command)
 (global-set-key "\C-c\C-m" 'execute-extended-command)
-
-;; turn off menu bar - available under C-Mouse3
-(menu-bar-mode -1)
-;; turn off scrollbars
-(set-activate 'scroll-bar-mode nil)
-;; turn off toolbar
-(set-activate 'tool-bar-mode nil)
-;; use spaces instead of tabs
-(set-activate 'indent-tabs-mode nil)
-;; turn off this annoying bell
-(set-activate 'visible-bell 'top-bottom)
 
 ;; all backups go to ~/.emacs.d/backups
 (set-activate 'backup-directory-alist '(("." . "~/.emacs.d/backups")))
@@ -147,3 +133,5 @@
 ;;; rust support
 (load-file (local-elisp-subpath "/rust.el"))
 (load-file (local-elisp-subpath "/helm-init.el"))
+
+(setq file-name-handler-alist tmp)
