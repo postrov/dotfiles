@@ -38,7 +38,7 @@
 
  
 ;; use buffer menu instead of buffer list
-(global-set-key [(control x) (control b)] 'buffer-menu)
+;; (global-set-key [(control x) (control b)] 'buffer-menu) ; removed for helm-mini
 (global-set-key "\C-x\C-m" 'execute-extended-command)
 (global-set-key "\C-c\C-m" 'execute-extended-command)
 
@@ -114,7 +114,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (notmuch exec-path-from-shell toml-mode yasnippet flycheck lsp-ui lsp-mode rustic selectrum which-key ac-cider js2-mode company-tern cider))))
+    (helm popup async company exec-path-from-shell toml-mode yasnippet flycheck lsp-ui lsp-mode rustic selectrum which-key ac-cider js2-mode company-tern cider))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -144,12 +144,6 @@
   :init
   (which-key-mode))
 
-(use-package selectrum
-  :ensure
-  :init
-  (selectrum-mode)
-  :custom
-  (completion-styles '(flex substring partial-completion)))
-
 ;;; rust support
 (load-file (local-elisp-subpath "/rust.el"))
+(load-file (local-elisp-subpath "/helm-init.el"))
