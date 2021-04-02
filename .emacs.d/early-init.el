@@ -24,17 +24,3 @@
 (setq inhibit-startup-message t)
 
 (load-theme 'leuven t)
-
-;;; font setup
-(cond
- ((member "Cascadia Code" (font-family-list))
-  (set-face-attribute 'default nil :font "Cascadia Code PL"))
- ((member "Monaco" (font-family-list))
-  (set-face-attribute 'default nil :font "Monaco-12"))
- ((member "Inconsolata" (font-family-list))
-  (set-face-attribute 'default nil :font "Inconsolata-12"))
- ((member "Consolas" (font-family-list))
-  (set-face-attribute 'default nil :font "Consolas-11"))
- ((member "DejaVu Sans Mono" (font-family-list))
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono-10")))
-
