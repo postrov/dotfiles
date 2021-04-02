@@ -23,4 +23,3 @@
 
 (setq inhibit-startup-message t)
 
-(load-theme 'leuven t)

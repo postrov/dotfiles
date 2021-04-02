@@ -5,6 +5,9 @@
 (unless (>= emacs-major-version 27)
   (load (expand-file-name "early-init.el" user-emacs-directory)))
 
+(when window-system
+  (load-theme 'leuven t))
+
 ;; own emacs lisp dir
 (defvar *local-elisp-dir* "~/.elisp")
 (defun local-elisp-subpath (subdir)
