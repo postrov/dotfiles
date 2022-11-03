@@ -13,3 +13,6 @@ vim.opt.incsearch = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
 
+-- <leader> key for remaps
+vim.g.mapleader = " "
+
