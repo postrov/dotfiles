@@ -1,3 +1,4 @@
+local JJ = {}
 -- require("lspconfig").jdtls.setup({})
 local config = {
   -- The command that starts the language server
@@ -15,8 +16,7 @@ local config = {
     '--add-modules=ALL-SYSTEM',
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-    '-javaagent:/home/jemag/.config/nvim/dependencies/lombok.jar',
-    '-Xbootclasspath/a:/home/jemag/.config/nvim/dependencies/lombok.jar',
+    '-javaagent:/home/ttt/.m2/repository/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar',
 
     -- 💀
     '-jar', '/home/ttt/.local/share/nvim/mason/packages/jdtls/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar',
@@ -37,11 +37,14 @@ local config = {
     }
   }
 }
-local config2 = {
-    cmd = {'/home/ttt/.local/share/nvim/mason/bin/jdtls' },
-    root_dir = vim.fs.dirname(vim.fs.find({'.gradlew', '.git', 'mvnw'}, { upward = true })[1]),
-}
--- This starts a new client & server,
--- or attaches to an existing client & server depending on the `root_dir`.
---require('jdtls').start_or_attach(config2)
+--local config = {
+--    cmd = {'/home/ttt/.local/share/nvim/mason/bin/jdtls' },
+--    root_dir = vim.fs.dirname(vim.fs.find({'.gradlew', '.git', 'mvnw'}, { upward = true })[1]),
+--}
 
+JJ.jjattach = function()
+    require('jdtls').start_or_attach(config)
+    require('jdtls.setup').add_commands()
+end
+
+return JJ
