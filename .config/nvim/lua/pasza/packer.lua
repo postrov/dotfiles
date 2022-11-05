@@ -5,7 +5,11 @@ vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function(use)
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
+  -- LSP/DAP manager
+  use "williamboman/mason.nvim"
+  -- color theme
   use 'folke/tokyonight.nvim'
+  -- fuzzy find
   use {
       'nvim-telescope/telescope.nvim', tag = '0.1.0',
       -- or                            , branch = '0.1.x',
@@ -17,6 +21,8 @@ return require('packer').startup(function(use)
   }
   -- Collection of common configurations for the Nvim LSP client
   use("neovim/nvim-lspconfig")
+  -- Java LSP extensions
+  use 'mfussenegger/nvim-jdtls'
   -- Visualize lsp progress
   use({
     "j-hui/fidget.nvim",
