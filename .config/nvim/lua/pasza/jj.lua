@@ -31,6 +31,8 @@ local custom_attach = function(client, bufnr)
     buf_set_keymap("v", "<leader>de", "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>", opts)
     buf_set_keymap("n", "<leader>de", "<Cmd>lua require('jdtls').extract_variable()<CR>", opts)
     buf_set_keymap("v", "<leader>dm", "<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>", opts)
+    -- code actions
+    buf_set_keymap("n", "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
 end
 
 local config = {
@@ -50,12 +52,12 @@ local config = {
     '--add-modules=ALL-SYSTEM',
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
---    '-javaagent:/home/pasza/.m2/repository/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar',
+    '-javaagent:/home/ttt/.m2/repository/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar',
 
     -- 💀
-    '-jar', '/home/pasza/.local/share/nvim/mason/packages/jdtls/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar',
-    '-configuration', '/home/pasza/.local/share/nvim/mason/packages/jdtls/config_linux',
-    '-data', '/home/pasza/tmp/dev/java'
+    '-jar', '/home/ttt/.local/share/nvim/mason/packages/jdtls/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar',
+    '-configuration', '/home/ttt/.local/share/nvim/mason/packages/jdtls/config_linux',
+    '-data', '/home/ttt/tmp/dev/java'
   },
 
   -- 💀
@@ -72,7 +74,7 @@ local config = {
   }
 }
 --local config = {
---    cmd = {'/home/pasza/.local/share/nvim/mason/bin/jdtls' },
+--    cmd = {'/home/ttt/.local/share/nvim/mason/bin/jdtls' },
 --    root_dir = vim.fs.dirname(vim.fs.find({'.gradlew', '.git', 'mvnw'}, { upward = true })[1]),
 --}
 

@@ -52,5 +52,7 @@ return require('packer').startup(function(use)
 
   -- Optional
   use("nvim-lua/popup.nvim")
+  -- 
+  use("romgrk/nvim-treesitter-context")
 end)
 
