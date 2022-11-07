@@ -4,14 +4,18 @@ local data_dir = vim.fn.stdpath('data')
 local jdtls_dir = data_dir .. '/mason/packages/jdtls'
 local config_dir = jdtls_dir .. '/config_linux'
 local plugins_dir = jdtls_dir .. '/plugins'
--- todo: this does not descend recursively
 local find_file = function(path, pattern)
    return vim.fs.find(
-       function(name) return string.find(name, pattern) ~= nil end,
-       {path = path}
+       function(name)
+           return (vim.fn.isdirectory(name) == 1) or (string.find(name, pattern) ~= nil)
+       end,
+       {path = path, type = "file"}
    )[1]
 end
-local jdtls_plugin = find_file(plugins_dir, "org.eclipse.equinox.launcher_.*jar$")
+local path_to_jar = find_file(plugins_dir, "org.eclipse.equinox.launcher_.*jar$")
+print(path_to_jar)
+local jdtls_plugin_jar = find_file(plugins_dir, "org.eclipse.equinox.launcher_.*jar$")
+local lombok_jar = jdtls_dir .. '/lombok.jar'
 local root_markers = { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
 local jdtls_data_dir = data_dir .. '/dev/java'
 
@@ -67,10 +71,10 @@ local config = {
     '--add-modules=ALL-SYSTEM',
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-    --'-javaagent:/home/pasza/.m2/repository/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar',
+    '-javaagent:' .. lombok_jar,
 
     -- 💀
-    '-jar', jdtls_plugin,
+    '-jar', jdtls_plugin_jar,
     '-configuration', config_dir,
     '-data', jdtls_data_dir
   },
