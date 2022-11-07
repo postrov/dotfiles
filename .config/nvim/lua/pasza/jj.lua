@@ -1,5 +1,20 @@
 local JJ = {}
--- require("lspconfig").jdtls.setup({})
+
+local data_dir = vim.fn.stdpath('data')
+local jdtls_dir = data_dir .. '/mason/packages/jdtls'
+local config_dir = jdtls_dir .. '/config_linux'
+local plugins_dir = jdtls_dir .. '/plugins'
+-- todo: this does not descend recursively
+local find_file = function(path, pattern)
+   return vim.fs.find(
+       function(name) return string.find(name, pattern) ~= nil end,
+       {path = path}
+   )[1]
+end
+local jdtls_plugin = find_file(plugins_dir, "org.eclipse.equinox.launcher_.*jar$")
+local root_markers = { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
+local jdtls_data_dir = data_dir .. '/dev/java'
+
 
 
 local custom_attach = function(client, bufnr)
@@ -52,18 +67,18 @@ local config = {
     '--add-modules=ALL-SYSTEM',
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-    '-javaagent:/home/ttt/.m2/repository/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar',
+    --'-javaagent:/home/pasza/.m2/repository/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar',
 
     -- 💀
-    '-jar', '/home/ttt/.local/share/nvim/mason/packages/jdtls/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar',
-    '-configuration', '/home/ttt/.local/share/nvim/mason/packages/jdtls/config_linux',
-    '-data', '/home/ttt/tmp/dev/java'
+    '-jar', jdtls_plugin,
+    '-configuration', config_dir,
+    '-data', jdtls_data_dir
   },
 
   -- 💀
   -- This is the default if not provided, you can remove it. Or adjust as needed.
   -- One dedicated LSP server & client will be started per unique root_dir
-  root_dir = require('jdtls.setup').find_root({'.git', 'mvnw', 'gradlew'}),
+  root_dir = require('jdtls.setup').find_root(root_markers),
 
   -- Here you can configure eclipse.jdt.ls specific settings
   -- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
@@ -74,7 +89,7 @@ local config = {
   }
 }
 --local config = {
---    cmd = {'/home/ttt/.local/share/nvim/mason/bin/jdtls' },
+--    cmd = {'/home/pasza/.local/share/nvim/mason/bin/jdtls' },
 --    root_dir = vim.fs.dirname(vim.fs.find({'.gradlew', '.git', 'mvnw'}, { upward = true })[1]),
 --}
 
