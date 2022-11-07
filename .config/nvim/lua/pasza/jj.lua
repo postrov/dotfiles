@@ -12,8 +12,6 @@ local find_file = function(path, pattern)
        {path = path, type = "file"}
    )[1]
 end
-local path_to_jar = find_file(plugins_dir, "org.eclipse.equinox.launcher_.*jar$")
-print(path_to_jar)
 local jdtls_plugin_jar = find_file(plugins_dir, "org.eclipse.equinox.launcher_.*jar$")
 local lombok_jar = jdtls_dir .. '/lombok.jar'
 local root_markers = { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
