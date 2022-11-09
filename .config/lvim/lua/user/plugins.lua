@@ -1,6 +1,5 @@
 -- Additional Plugins
 lvim.plugins = {
-  "folke/tokyonight.nvim",
   "ellisonleao/gruvbox.nvim",
   "nvim-treesitter/playground",
   "nvim-treesitter/nvim-treesitter-textobjects",
