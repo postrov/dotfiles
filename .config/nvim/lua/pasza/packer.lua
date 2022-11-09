@@ -54,5 +54,10 @@ return require('packer').startup(function(use)
   use("nvim-lua/popup.nvim")
   -- 
   use("romgrk/nvim-treesitter-context")
+  -- auto close
+  use {
+      "windwp/nvim-autopairs",
+      config = function() require("nvim-autopairs").setup {} end
+  }
 end)
 
