@@ -1,5 +1,5 @@
 
-local nnoremap = require("pasza.keymap").nnoremap
+local nnoremap = require("user.keymap").nnoremap
 
 function ContextSetup(show_all_context)
     require("treesitter-context").setup({

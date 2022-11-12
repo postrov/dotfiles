@@ -2,7 +2,7 @@
 
 ### Package management
 * Done using packer
-* edit ~/.config/nvim/lua/pasza/packer.lua
+* edit ~/.config/nvim/lua/user/packer.lua
 * :so
 * :PackerSync
 
@@ -14,7 +14,7 @@
     - rust: rust-analyzer
 2. Adjust paths if necessary (after/plugin/{lang}.lua)
 #### JAVA
-- roughly works, `:lua require('pasza.jj').jjattach()`
+- roughly works, `:lua require('user.jj').jjattach()`
 - project root, `.classpath` entries are needed for dependencies: ``
 `<classpathentry kind="lib" path="/home/ttt/.m2/repository/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar"/>`
  
