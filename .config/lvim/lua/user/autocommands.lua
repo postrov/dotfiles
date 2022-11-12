@@ -101,11 +101,11 @@ vim.api.nvim_create_autocmd({ "VimResized" }, {
   end,
 })
 
-vim.api.nvim_create_autocmd({ "CmdWinEnter" }, {
-  callback = function()
-    vim.cmd "quit"
-  end,
-})
+-- vim.api.nvim_create_autocmd({ "CmdWinEnter" }, {
+--   callback = function()
+--     vim.cmd "quit"
+--   end,
+-- })
 
 vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
   callback = function()
@@ -132,12 +132,16 @@ vim.api.nvim_create_autocmd({ "VimEnter" }, {
   end,
 })
 
-vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
-  pattern = { "*" },
-  callback = function()
-    vim.cmd "checktime"
-  end,
-})
+-- vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
+--  pattern = { "*" },
+--  callback = function()
+--     local winId = vim.fn.win_getid()
+--     local winType = vim.fn.win_gettype(winId)
+--     if winType ~= "command" then
+--       vim.cmd "checktime"
+--     end
+--  end,
+
 
 vim.api.nvim_create_autocmd({ "CursorHold" }, {
   callback = function()
