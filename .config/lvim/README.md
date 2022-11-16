@@ -70,6 +70,9 @@ npm install
 npm run build-plugin
 ```
 
+For some reason jdtls is ran twice, once with configured command and once with bundled shell script, workaround:
+`chmod a-x ~/.local/share/nvim/mason/packages/jdtls/bin/jdtls`
+
 ## Install latest rust-analyzer binary
 
 ```sh

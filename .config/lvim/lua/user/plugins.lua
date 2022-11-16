@@ -5,7 +5,6 @@ lvim.plugins = {
   "nvim-treesitter/nvim-treesitter-textobjects",
   "p00f/nvim-ts-rainbow",
   "mfussenegger/nvim-jdtls",
-  "karb94/neoscroll.nvim",
   -- "j-hui/fidget.nvim",
   "windwp/nvim-ts-autotag",
   "kylechui/nvim-surround",
