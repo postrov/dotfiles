@@ -1,6 +1,7 @@
-vim.g.tokyonight_transparent_sidebar = true
-vim.g.tokyonight_transparent = true
-vim.opt.background = "dark"
-
-vim.cmd("colorscheme tokyonight")
+vim.cmd("set termguicolors")
+vim.g.aurora_italic = 1
+vim.g.aurora_transparent = 1
+vim.g.aurora_bold = 1
+vim.g.aurora_darker = 1
+vim.cmd("colorscheme aurora")
 

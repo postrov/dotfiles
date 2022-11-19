@@ -8,7 +8,16 @@ return require('packer').startup(function(use)
   -- LSP/DAP manager
   use "williamboman/mason.nvim"
   -- color theme
-  use 'folke/tokyonight.nvim'
+  use {
+      'ray-x/aurora',
+      config = function()
+          local g = vim.g
+          g.aurora_italic = 1
+          g.aurora_transparent = 1
+          g.aurora_bold = 1
+          g.aurora_darker = 1
+      end
+  }
   -- fuzzy find
   use {
       'nvim-telescope/telescope.nvim', tag = '0.1.0',
