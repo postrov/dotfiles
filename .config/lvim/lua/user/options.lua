@@ -1,5 +1,8 @@
--- lvim.colorscheme = "darkplus"
-lvim.colorscheme = "lunar"
+lvim.colorscheme = "aurora"
+vim.g.aurora_italic = 1
+vim.g.aurora_transparent = 1
+vim.g.aurora_bold = 1
+vim.g.aurora_darker = 1
 lvim.log.level = "warn"
 lvim.builtin.alpha.active = true
 lvim.builtin.illuminate.active = false

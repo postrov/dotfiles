@@ -1,6 +1,6 @@
 -- Additional Plugins
 lvim.plugins = {
-  "ellisonleao/gruvbox.nvim",
+  "ray-x/aurora",
   "nvim-treesitter/playground",
   "nvim-treesitter/nvim-treesitter-textobjects",
   "p00f/nvim-ts-rainbow",
@@ -14,6 +14,7 @@ lvim.plugins = {
   "ghillb/cybu.nvim",
   "moll/vim-bbye",
   "folke/todo-comments.nvim",
+  "folke/trouble.nvim",
   "windwp/nvim-spectre",
   "f-person/git-blame.nvim",
   "ruifm/gitlinker.nvim",
@@ -31,6 +32,7 @@ lvim.plugins = {
   "TimUntersberger/neogit",
   "sindrets/diffview.nvim",
   "simrat39/rust-tools.nvim",
+  "simrat39/symbols-outline.nvim",
   "olexsmir/gopher.nvim",
   "leoluz/nvim-dap-go",
   "mfussenegger/nvim-dap-python",

@@ -101,7 +101,7 @@ lvim.builtin.which_key.mappings["l"] = {
   v = { "<cmd>lua require('lsp_lines').toggle()<cr>", "Virtual Text" },
   l = { "<cmd>lua vim.lsp.codelens.run()<cr>", "CodeLens Action" },
   o = { "<cmd>SymbolsOutline<cr>", "Outline" },
-  q = { "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", "Quickfix" },
+  q = { "<cmd>lua vim.diagnostic.setloclist()<cr>", "Quickfix" },
   r = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
   R = { "<cmd>TroubleToggle lsp_references<cr>", "References" },
   s = { "<cmd>Telescope lsp_document_symbols<cr>", "Document Symbols" },
@@ -155,14 +155,14 @@ if not status_ok then
 end
 
 local m_mappings = {
-  a = { "<cmd>silent BookmarkAnnotate<cr>", "Annotate" },
-  c = { "<cmd>silent BookmarkClear<cr>", "Clear" },
-  b = { "<cmd>silent BookmarkToggle<cr>", "Toggle" },
+  -- a = { "<cmd>silent BookmarkAnnotate<cr>", "Annotate" },
+  -- c = { "<cmd>silent BookmarkClear<cr>", "Clear" },
+  -- b = { "<cmd>silent BookmarkToggle<cr>", "Toggle" },
   m = { '<cmd>lua require("harpoon.mark").add_file()<cr>', "Harpoon" },
   ["."] = { '<cmd>lua require("harpoon.ui").nav_next()<cr>', "Harpoon Next" },
   [","] = { '<cmd>lua require("harpoon.ui").nav_prev()<cr>', "Harpoon Prev" },
-  l = { "<cmd>lua require('user.bfs').open()<cr>", "Buffers" },
-  j = { "<cmd>silent BookmarkNext<cr>", "Next" },
+  -- l = { "<cmd>lua require('user.bfs').open()<cr>", "Buffers" },
+  -- j = { "<cmd>silent BookmarkNext<cr>", "Next" },
   s = { "<cmd>Telescope harpoon marks<cr>", "Search Files" },
   k = { "<cmd>silent BookmarkPrev<cr>", "Prev" },
   S = { "<cmd>silent BookmarkShowAll<cr>", "Prev" },
@@ -174,4 +174,4 @@ local m_mappings = {
   [";"] = { '<cmd>lua require("harpoon.ui").toggle_quick_menu()<cr>', "Harpoon UI" },
 }
 
-which_key.register(m_mappings, m_opts)
+-- which_key.register(m_mappings, m_opts)
