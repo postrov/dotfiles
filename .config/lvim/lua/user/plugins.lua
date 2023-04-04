@@ -3,8 +3,10 @@ lvim.plugins = {
   "ray-x/aurora",
   "nvim-treesitter/playground",
   "nvim-treesitter/nvim-treesitter-textobjects",
+  "nvim-treesitter/nvim-treesitter-context",
   "p00f/nvim-ts-rainbow",
   "mfussenegger/nvim-jdtls",
+  "tpope/vim-fugitive",
   -- "j-hui/fidget.nvim",
   "windwp/nvim-ts-autotag",
   "kylechui/nvim-surround",
@@ -20,6 +22,7 @@ lvim.plugins = {
   "ruifm/gitlinker.nvim",
   "mattn/vim-gist",
   "mattn/webapi-vim",
+  "mbbill/undotree",
   "folke/zen-mode.nvim",
   "lvimuser/lsp-inlayhints.nvim",
   "lunarvim/darkplus.nvim",
@@ -66,28 +69,34 @@ lvim.plugins = {
     run = "cd js && npm ci",
   },
   { "tzachar/cmp-tabnine", run = "./install.sh" },
+  -- {
+  --   "zbirenbaum/copilot.lua",
+  --   -- event = { "VimEnter" },
+  --   config = function()
+  --     vim.defer_fn(function()
+  --       require("copilot").setup {
+  --         plugin_manager_path = os.getenv "LUNARVIM_RUNTIME_DIR" .. "/site/pack/packer",
+  --       }
+  --     end, 100)
+  --   end,
+  -- },
+  -- {
+  --   "zbirenbaum/copilot-cmp",
+  --   after = { "copilot.lua" },
+  --   config = function()
+  --     require("copilot_cmp").setup {
+  --       formatters = {
+  --         insert_text = require("copilot_cmp.format").remove_existing,
+  --       },
+  --     }
+  --   end,
+  -- },
   {
-    "zbirenbaum/copilot.lua",
-    -- event = { "VimEnter" },
+    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     config = function()
-      vim.defer_fn(function()
-        require("copilot").setup {
-          plugin_manager_path = os.getenv "LUNARVIM_RUNTIME_DIR" .. "/site/pack/packer",
-        }
-      end, 100)
+      require("lsp_lines").setup()
     end,
-  },
-  {
-    "zbirenbaum/copilot-cmp",
-    after = { "copilot.lua" },
-    config = function()
-      require("copilot_cmp").setup {
-        formatters = {
-          insert_text = require("copilot_cmp.format").remove_existing,
-        },
-      }
-    end,
-  },
+  }
   -- "MunifTanjim/nui.nvim",
   -- {
   --   "folke/noice.nvim",
