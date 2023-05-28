@@ -48,14 +48,18 @@ end
 
 require("lazy").setup({
   {
-    "ellisonleao/gruvbox.nvim",
-    opts = {
-      contrast = "hard",
-      palette_overrides = {
-        gray = "#2ea542",
-      },
-    },
+    "catppuccin/nvim",
+	name = "catppuccin"
   },
+  -- {
+  --   "ellisonleao/gruvbox.nvim",
+  --   opts = {
+  --     contrast = "hard",
+  --     palette_overrides = {
+  --       gray = "#2ea542",
+  --     },
+  --   },
+  -- },
   {
     "nvim-treesitter/nvim-treesitter",
     build = function()
@@ -215,7 +219,7 @@ require("nvim-treesitter.configs").setup({
 -- COLORSCHEME
 vim.cmd.colorscheme("default")
 
-local colorscheme = "gruvbox"
+local colorscheme = "catppuccin"
 
 local colorscheme_ok, _ = pcall(vim.cmd.colorscheme, colorscheme)
 if not colorscheme_ok then
