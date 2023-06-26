@@ -43,6 +43,9 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
+(straight-use-package 'catppuccin-theme)
+(load-theme 'catppuccin :no-confirm)
+
 ;; system-wide site-lisp path
 ;; (add-to-load-path "/usr/share/emacs/site-lisp" )
 (add-to-load-path *local-elisp-dir*)
