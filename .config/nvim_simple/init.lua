@@ -60,6 +60,13 @@ require("lazy").setup({
   --     },
   --   },
   -- },
+  { "jinh0/eyeliner.nvim" },
+  { 
+	  "windwp/nvim-autopairs",
+	  config = function()
+		  require("nvim-autopairs").setup {}
+	  end,
+  },
   {
     "nvim-treesitter/nvim-treesitter",
     build = function()
@@ -132,6 +139,90 @@ require("lazy").setup({
         underline = false,
       })
     end,
+  },
+  {
+	  "simrat39/rust-tools.nvim",
+	  config = function()
+		  local tools = {
+			  autoSetHints = true,
+			  runnables = {
+				  use_telescope = true,
+			  },
+			  inlay_hints = {
+				  show_parameter_hints = true,
+			  },
+			  hover_actions = {
+				  auto_focus = true
+			  },
+			  reload_workspace_from_cargo_toml = true,
+			  on_initialized = function()
+				  vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "CursorHold", "InsertLeave"}, {
+					  pattern = { "*.rs" },
+					  callback = function()
+						  local _, _ = pcall(vim.lsp.codelens.refresh)
+					  end
+				  })
+			  end
+		  }
+		  local mason_registry = require("mason-registry")
+		  local codelldb = mason_registry.get_package("codelldb")
+		  local extension_path = codelldb:get_install_path() .. "/extension/"
+		  local codelldb_path = extension_path .. "adapter/codelldb"
+		  local liblldb_path = extension_path .. "lldb/lib/liblldb.so"
+		  -- todo: this does not seem to work
+		  local lsp_on_attach = function(_, bufnr)
+			  -- vim.keymap.set("n", "<Leader>k", "<cmd> lua rt.hover_actions.hover_actions()<CR>", { buffer = bufnr })
+			  -- vim.keymap.set("n", "<Leader>a", "<cmd> lua rt.code_action_group.code_action_group()<CR>", { buffer = bufnr })
+			  vim.keymap.set("n", "<Leader>k", "<cmd> lua vim.lsp.buf.code_action()<CR>", {buffer = bufnr})
+			  vim.keymap.set("n", "<Leader>lj", "<cmd> lua vim.diagnostic.goto_next()<CR>", {buffer = bufnr})
+			  vim.keymap.set("n", "<Leader>lk", "<cmd> lua vim.diagnostic.goto_prev()<CR>", {buffer = bufnr})
+			  vim.keymap.set("n", "<Leader>lc", "<cmd> lua vim.lsp.codelens.run()<CR>", {buffer = bufnr})
+		  end
+		  require('rust-tools').setup({
+			  tools = tools,
+			  server = {
+				  on_attach = lsp_on_attach,
+				  capabilities = capabilities,
+				  flags = {debounce_text_changes = 150},
+				  settings = {
+					  ["rust-analyzer"] = {
+						  lens = {
+							  enable = true,
+						  },
+						  checkOnSave = {
+							  enable = true,
+							  command = "clippy",
+						  },
+						  locationLinks = false,
+					  },
+				  },
+			  },
+			  dap = {
+				  adapter = require("rust-tools.dap").get_codelldb_adapter(codelldb_path, liblldb_path),
+			  }
+		  })
+--		  require('rust-tools-debug').setup()
+	  end
+  },
+  "mfussenegger/nvim-dap",
+  {
+	  "rcarriga/nvim-dap-ui",
+	  config = function()
+		  require("dapui").setup()
+		  local dap, dapui = require("dap"), require("dapui")
+		  vim.keymap.set("n", "<Leader>dx", ":DapTerminate<CR>")
+		  vim.keymap.set("n", "<Leader>dt", ":DapToggleBreakpoint<CR>")
+		  vim.keymap.set("n", "<Leader>do", ":DapStepOver<CR>")
+		  dap.listeners.after.event_initialized["dapui_config"] = function()
+			  dapui.open()
+          end
+		  dap.listeners.after.event_terminated["dapui_config"] = function()
+			  dapui.close()
+          end
+		  dap.listeners.after.event_exited["dapui_config"] = function()
+			  dapui.close()
+          end
+	  end
   },
   {
     "akinsho/toggleterm.nvim",
