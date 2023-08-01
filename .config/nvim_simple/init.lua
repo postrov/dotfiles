@@ -46,6 +46,31 @@ if vim.fn.has("termguicolors") == 1 then
   vim.o.termguicolors = true
 end
 
+-- format on save
+local augrup = vim.api.nvim_create_augroup("LspFormatting", {})
+local lsp_on_attach = function(client, bufnr)
+	if client.supports_method("textDocument/formatting") then
+		vim.api.nvim_clear_autocmds({
+			group = augrup,
+			buffer = bufnr,
+		})
+		vim.api.nvim_create_autocmd("BufWritePre", {
+			group = augrup,
+			buffer = bufnr,
+			callback = function()
+				vim.lsp.buf.format({bufnr = bufnr})
+			end
+		})
+	end
+	-- vim.keymap.set("n", "<Leader>k", "<cmd> lua rt.hover_actions.hover_actions()<CR>", { buffer = bufnr })
+	-- vim.keymap.set("n", "<Leader>a", "<cmd> lua rt.code_action_group.code_action_group()<CR>", { buffer = bufnr })
+	vim.keymap.set("n", "<Leader>k", "<cmd> lua vim.lsp.buf.code_action()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>lj", "<cmd> lua vim.diagnostic.goto_next()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>lk", "<cmd> lua vim.diagnostic.goto_prev()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>lc", "<cmd> lua vim.lsp.codelens.run()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>gd", "<cmd> lua vim.lsp.buf.definition()<CR>", {buffer = bufnr})
+end
+-- local lsp_capabilities = ..
 require("lazy").setup({
   {
     "catppuccin/nvim",
@@ -91,6 +116,10 @@ require("lazy").setup({
     },
   },
   -- "fatih/vim-go",
+  {
+	  "jose-elias-alvarez/null-ls.nvim",
+	  ft = "go",
+  },
   {
     "VonHeikemen/lsp-zero.nvim",
     branch = "v1.x",
@@ -169,15 +198,6 @@ require("lazy").setup({
 		  local extension_path = codelldb:get_install_path() .. "/extension/"
 		  local codelldb_path = extension_path .. "adapter/codelldb"
 		  local liblldb_path = extension_path .. "lldb/lib/liblldb.so"
-		  -- todo: this does not seem to work
-		  local lsp_on_attach = function(_, bufnr)
-			  -- vim.keymap.set("n", "<Leader>k", "<cmd> lua rt.hover_actions.hover_actions()<CR>", { buffer = bufnr })
-			  -- vim.keymap.set("n", "<Leader>a", "<cmd> lua rt.code_action_group.code_action_group()<CR>", { buffer = bufnr })
-			  vim.keymap.set("n", "<Leader>k", "<cmd> lua vim.lsp.buf.code_action()<CR>", {buffer = bufnr})
-			  vim.keymap.set("n", "<Leader>lj", "<cmd> lua vim.diagnostic.goto_next()<CR>", {buffer = bufnr})
-			  vim.keymap.set("n", "<Leader>lk", "<cmd> lua vim.diagnostic.goto_prev()<CR>", {buffer = bufnr})
-			  vim.keymap.set("n", "<Leader>lc", "<cmd> lua vim.lsp.codelens.run()<CR>", {buffer = bufnr})
-		  end
 		  require('rust-tools').setup({
 			  tools = tools,
 			  server = {
@@ -206,13 +226,27 @@ require("lazy").setup({
   },
   "mfussenegger/nvim-dap",
   {
+	  "leoluz/nvim-dap-go",
+	  ft = "go",
+	  dependencies = "mfussenegger/nvim-dap",
+	  config = function(_, opts)
+		  require("dap-go").setup(opts)
+	  end,
+  },
+  {
 	  "rcarriga/nvim-dap-ui",
 	  config = function()
 		  require("dapui").setup()
 		  local dap, dapui = require("dap"), require("dapui")
+		  local sidebar_toggle = function()
+			  local widgets = require("dap.ui.widgets")
+			  local sidebar = widgets.sidebar(widgets.scopes)
+			  sidebar.open()
+		  end
 		  vim.keymap.set("n", "<Leader>dx", ":DapTerminate<CR>")
 		  vim.keymap.set("n", "<Leader>dt", ":DapToggleBreakpoint<CR>")
 		  vim.keymap.set("n", "<Leader>do", ":DapStepOver<CR>")
+		  vim.keymap.set("n", "<Leader>dus", sidebar_toggle)
 		  dap.listeners.after.event_initialized["dapui_config"] = function()
 			  dapui.open()
           end
@@ -245,9 +279,55 @@ require("lazy").setup({
   "CreaturePhil/vim-handmade-hero",
 })
 
--- pasza: vim.keymap.set("i", "jj", "<Esc>")
+-- lua lsp setup
+local lspconfig = require('lspconfig')
+lspconfig.lua_ls.setup {
+	settings = {
+		Lua = {
+			workspace = {
+				checkThirdParty = false,
+			}
+		}
+	}
+}
 
--- some
+-- go lsp setup
+local lsp_util = require("lspconfig/util")
+lspconfig.gopls.setup {
+	on_attach = function(client, buffnr)
+		lsp_on_attach(client, buffnr)
+		local dap_go = require("dap-go")
+		vim.keymap.set("n", "<Leader>dgt", function()
+			dap_go.debug_test()
+		end)
+		vim.keymap.set("n", "<Leader>dlt", function()
+			dap_go.debug_last_test()
+		end)
+	end,
+	-- capabilities = capabilities,
+	cmd = {"gopls"},
+	filetypes = {"go", "gomod", "gowork", "gotmpl"},
+	root_dir = lsp_util.root_pattern("go.work", "go.mod", ".git"),
+	settings = {
+		gopls = {
+			completeUnimported = true, -- auto import modules
+			usePlaceholders = true, -- suggest function params (doesn't seem to work)
+			analyses = {
+				unusedparams = true, -- warn about unused params (doesn't seem to work)
+			},
+			staticcheck = true,
+		}
+	}
+}
+local null_ls = require("null-ls")
+null_ls.setup({
+	sources = {
+		require("null-ls").builtins.formatting.gofumpt,
+		require("null-ls").builtins.formatting.goimports_reviser,
+		require("null-ls").builtins.formatting.golines,
+	}
+})
+-- pasza: vim.keymap.set("i", "jj", "<Esc>")
 
 
 -- vim.keymap.set("n", "<M-b>", ":Ex<CR>")
