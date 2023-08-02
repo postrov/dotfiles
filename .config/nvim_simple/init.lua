@@ -69,6 +69,10 @@ local lsp_on_attach = function(client, bufnr)
 	vim.keymap.set("n", "<Leader>lk", "<cmd> lua vim.diagnostic.goto_prev()<CR>", {buffer = bufnr})
 	vim.keymap.set("n", "<Leader>lc", "<cmd> lua vim.lsp.codelens.run()<CR>", {buffer = bufnr})
 	vim.keymap.set("n", "<Leader>gd", "<cmd> lua vim.lsp.buf.definition()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>lrn", "<cmd> lua vim.lsp.buf.rename()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>lfr", "<cmd> lua vim.lsp.buf.references()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>hs", "<cmd> lua vim.lsp.buf.signature_help()<CR>", {buffer = bufnr})
+	vim.keymap.set("n", "<Leader>ld", "<cmd> lua vim.diagnostic.open_float()<CR>", {buffer = bufnr})
 end
 -- local lsp_capabilities = ..
 require("lazy").setup({
@@ -202,7 +206,7 @@ require("lazy").setup({
 			  tools = tools,
 			  server = {
 				  on_attach = lsp_on_attach,
-				  capabilities = capabilities,
+				  -- capabilities = capabilities,
 				  flags = {debounce_text_changes = 150},
 				  settings = {
 					  ["rust-analyzer"] = {
@@ -238,15 +242,16 @@ require("lazy").setup({
 	  config = function()
 		  require("dapui").setup()
 		  local dap, dapui = require("dap"), require("dapui")
-		  local sidebar_toggle = function()
-			  local widgets = require("dap.ui.widgets")
-			  local sidebar = widgets.sidebar(widgets.scopes)
-			  sidebar.open()
-		  end
+		  -- local sidebar_toggle = function()
+		  -- 			  local widgets = require("dap.ui.widgets")
+		  -- 			  local sidebar = widgets.sidebar(widgets.scopes)
+		  -- 			  sidebar.open()
+		  -- end
 		  vim.keymap.set("n", "<Leader>dx", ":DapTerminate<CR>")
 		  vim.keymap.set("n", "<Leader>dt", ":DapToggleBreakpoint<CR>")
 		  vim.keymap.set("n", "<Leader>do", ":DapStepOver<CR>")
-		  vim.keymap.set("n", "<Leader>dus", sidebar_toggle)
+		  vim.keymap.set("n", "<Leader>di", ":DapStepInto<CR>")
+		  -- vim.keymap.set("n", "<Leader>dus", sidebar_toggle)
 		  dap.listeners.after.event_initialized["dapui_config"] = function()
 			  dapui.open()
           end
@@ -318,6 +323,9 @@ lspconfig.gopls.setup {
 			staticcheck = true,
 		}
 	}
+}
+lspconfig.ocamllsp.setup {
+	on_attach = lsp_on_attach,
 }
 local null_ls = require("null-ls")
 null_ls.setup({
