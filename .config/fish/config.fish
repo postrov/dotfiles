@@ -14,3 +14,6 @@ if [ -f $HOME/.config/fish/alias.fish ]
     source $HOME/.config/fish/alias.fish
 end
 starship init fish |source
+zoxide init fish | source
+rtx activate | source
+

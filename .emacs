@@ -44,6 +44,8 @@
 (setq straight-use-package-by-default t)
 
 (straight-use-package 'catppuccin-theme)
+; (setq catppuccin-flavor 'mocha)
+; (catppuccin-reload)
 (load-theme 'catppuccin :no-confirm)
 
 ;; system-wide site-lisp path
@@ -124,8 +126,9 @@
   (which-key-mode))
 
 ;;; rust support
-(add-to-list 'auto-mode-alist'("\\.rs" . rustic-mode))
-(autoload 'rustic-mode (local-elisp-subpath "/rust.el") nil t)
+; (add-to-list 'auto-mode-alist'("\\.rs" . rustic-mode))
+; (autoload 'rustic-mode (local-elisp-subpath "/rust.el") nil t)
+(use-package rust-mode)
 
 ;;(load-file (local-elisp-subpath "/rust.el"))
 
@@ -146,3 +149,10 @@
 (load-file (local-elisp-subpath "/helm-init.el"))
 
 )
+
+(global-unset-key "\C-z")
+(global-unset-key "\C-x\C-z")
+
+;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
+(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+;; ## end of OPAM user-setup addition for emacs / base ## keep this line
