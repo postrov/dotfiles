@@ -464,6 +464,10 @@ nnoremap("<C-d>", "<C-d>zz")
 nnoremap("n", "nzzzv")
 nnoremap("N", "Nzzzv")
 
+-- unbind F1
+nnoremap("<F1>", ":echo<CR>")
+inoremap("<F1>", "<C-o>:echo<CR>")
+
 -- See `:help telescope.builtin`
 local builtin = require("telescope.builtin")
 
