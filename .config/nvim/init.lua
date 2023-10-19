@@ -73,6 +73,7 @@ local lsp_on_attach = function(client, bufnr)
 	vim.keymap.set("n", "<Leader>lfr", "<cmd> lua vim.lsp.buf.references()<CR>", { buffer = bufnr })
 	vim.keymap.set("n", "<Leader>hs", "<cmd> lua vim.lsp.buf.signature_help()<CR>", { buffer = bufnr })
 	vim.keymap.set("n", "<Leader>ld", "<cmd> lua vim.diagnostic.open_float()<CR>", { buffer = bufnr })
+	vim.keymap.set("n", "<Leader>hd", "<cmd> lua vim.lsp.buf.hover()<CR>", { buffer = bufnr })
 end
 -- local lsp_capabilities = ..
 require("lazy").setup({
@@ -185,6 +186,19 @@ require("lazy").setup({
 	{
 		"jose-elias-alvarez/null-ls.nvim",
 		ft = "go",
+	},
+	{
+		"folke/todo-comments.nvim",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		opts = {
+			-- highlight = {
+			-- 	before = "bg",
+			-- 	after = "bg",
+			-- },
+			-- your configuration comes here
+			-- or leave it empty to use the default settings
+			-- refer to the configuration section below
+		}
 	},
 	{
 		"VonHeikemen/lsp-zero.nvim",
