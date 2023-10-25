@@ -438,6 +438,10 @@ lspconfig.ocamllsp.setup {
 	end,
 	capabilities = ocaml_capabilities,
 }
+require('lspconfig').elixirls.setup {
+	-- cmd = { "/home/pasza/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" },
+	on_attach = lsp_on_attach,
+}
 local null_ls = require("null-ls")
 null_ls.setup({
 	sources = {
