@@ -1,7 +1,8 @@
 # Colors (One Half Dark)
 colors:
   primary:
-    background: '0x282c34'
+    background: '0x000000'
+    # background: '0x282c34'
     foreground: '0xdcdfe4'
 
   normal:
@@ -23,3 +24,10 @@ colors:
     magenta: '0xc678dd'
     cyan: '0x56b6c2'
     white: '0xdcdfe4'
+
+window:
+  opacity: 0.9
+
+# debug:
+  # render_timer: true 
+
