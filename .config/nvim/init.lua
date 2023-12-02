@@ -76,20 +76,53 @@ local lsp_on_attach = function(client, bufnr)
 	vim.keymap.set("n", "<Leader>hd", "<cmd> lua vim.lsp.buf.hover()<CR>", { buffer = bufnr })
 end
 -- local lsp_capabilities = ..
+local cmpSetup = function()
+	local cmp = require("cmp")
+	local cmp_select = { behavior = cmp.SelectBehavior.Select }
+	cmp.setup {
+		mapping = {
+			['<Tab>'] = function(fallback)
+				if cmp.visible() then
+					cmp.select_next_item()
+				else
+					fallback()
+				end
+			end,
+			['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
+			['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
+			['<C-y>'] = cmp.mapping.confirm({ select = true }),
+			["<C-Space>"] = cmp.mapping.complete(),
+		},
+		sources = {
+			{ name = "copilot",  group_index = 2 },
+			{ name = "nvim_lsp", group_index = 2 },
+			{ name = "path",     group_index = 2 },
+			{ name = "luasnip",  group_index = 2 },
+		},
+	}
+end
 require("lazy").setup({
 	{
 		"catppuccin/nvim",
 		name = "catppuccin"
 	},
-	-- {
-	--   "ellisonleao/gruvbox.nvim",
-	--   opts = {
-	--   contrast = "hard",
-	--   palette_overrides = {
-	--     gray = "#2ea542",
-	--   },
-	--   },
-	-- },
+	{
+		"zbirenbaum/copilot.lua",
+		cmd = "Copilot",
+		event = "InsertEnter",
+		config = function()
+			require("copilot").setup({
+				suggestion = { enabled = false },
+				panel = { enabled = false },
+			})
+		end,
+	},
+	{
+		"zbirenbaum/copilot-cmp",
+		config = function()
+			require("copilot_cmp").setup({})
+		end
+	},
 	{ "jinh0/eyeliner.nvim" },
 	{
 		"windwp/nvim-autopairs",
@@ -219,7 +252,6 @@ require("lazy").setup({
 		},
 		config = function()
 			local lsp = require("lsp-zero")
-
 			lsp.preset("recommended")
 
 			lsp.ensure_installed({
@@ -248,6 +280,7 @@ require("lazy").setup({
 					virtual_text = true,
 					underline = false,
 				})
+			cmpSetup()
 		end,
 	},
 	{
