@@ -6,6 +6,9 @@ disabled = true
 [aws]
 disabled = true
 
+[gcloud]
+disabled = true
+
 [bun]
 format = "via [$symbol]($style)"
 disabled = true
