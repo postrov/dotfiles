@@ -443,6 +443,18 @@ lspconfig.gopls.setup {
 		}
 	}
 }
+
+vim.filetype.add({
+	extension = {
+		templ = "templ",
+	},
+})
+lspconfig.templ.setup {
+	on_attach = lsp_on_attach,
+	flags = {
+		debounce_text_changes = 150,
+	},
+}
 local c = vim.lsp.protocol.make_client_capabilities()
 c.textDocument.completion.completionItem.snippetSupport = true
 c.textDocument.completion.completionItem.resolveSupport = {
@@ -489,6 +501,18 @@ null_ls.setup({
 
 
 -- vim.keymap.set("n", "<M-b>", ":Ex<CR>")
+require('lspconfig').tailwindcss.setup {
+	hovers = true,
+	suggestions = true,
+	root_dir = function(fname)
+		local root_pattern = require("lspconfig").util.root_pattern(
+			"tailwind.config.cjs",
+			"tailwind.config.js",
+			"postcss.config.js"
+		)
+		return root_pattern(fname)
+	end,
+}
 
 local function bind(op, outer_opts)
 	outer_opts = outer_opts or { noremap = true }
