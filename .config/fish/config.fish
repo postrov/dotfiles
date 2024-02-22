@@ -15,5 +15,7 @@ if [ -f $HOME/.config/fish/alias.fish ]
 end
 starship init fish |source
 zoxide init fish | source
-rtx activate | source
+mise activate fish | source
 
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/pasza/git-installs/google-cloud-sdk/path.fish.inc' ]; . '/home/pasza/git-installs/google-cloud-sdk/path.fish.inc'; end
