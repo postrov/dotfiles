@@ -15,7 +15,7 @@ if not vim.loop.fs_stat(lazypath) then
 	})
 end
 vim.opt.rtp:prepend(lazypath)
-
+vim.opt.conceallevel = 1
 -- Dark colorscheme variant
 vim.o.background = "dark"
 
@@ -103,26 +103,125 @@ local cmpSetup = function()
 end
 require("lazy").setup({
 	{
-		"catppuccin/nvim",
-		name = "catppuccin"
+		"epwalsh/obsidian.nvim",
+		version = "*", -- recommended, use latest release instead of latest commit
+		lazy = true,
+		ft = "markdown",
+		-- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
+		-- event = {
+		--   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+		--   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
+		--   "BufReadPre path/to/my-vault/**.md",
+		--   "BufNewFile path/to/my-vault/**.md",
+		-- },
+		dependencies = {
+			-- Required.
+			"nvim-lua/plenary.nvim",
+
+			-- see below for full list of optional dependencies 👇
+		},
+		opts = {
+			workspaces = {
+				{
+					name = "it",
+					path = "~/GoogleDrive/DriveSyncFiles/IT Knowledge",
+				},
+				{
+					name = "bible",
+					path = "~/GoogleDrive/DriveSyncFiles/Bible Study PL",
+				},
+			},
+
+			-- see below for full list of options 👇
+		},
 	},
 	{
-		"zbirenbaum/copilot.lua",
-		cmd = "Copilot",
-		event = "InsertEnter",
+		"tpope/vim-fugitive"
+
+	},
+	{
+		"ThePrimeagen/harpoon",
+		name = "harpoon",
+		branch = "harpoon2",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope.nvim",
+		},
+
 		config = function()
-			require("copilot").setup({
-				suggestion = { enabled = false },
-				panel = { enabled = false },
+			local harpoon = require("harpoon")
+			harpoon.setup()
+			-- keymaps
+			vim.keymap.set("n", "<leader>h", function() harpoon:list():append() end)
+			vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+
+			vim.keymap.set("n", "<C-h>", function() harpoon:list():select(1) end)
+			vim.keymap.set("n", "<C-t>", function() harpoon:list():select(2) end)
+			vim.keymap.set("n", "<C-n>", function() harpoon:list():select(3) end)
+			vim.keymap.set("n", "<C-s>", function() harpoon:list():select(4) end)
+
+			-- Toggle previous & next buffers stored within Harpoon list
+			vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
+			vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
+
+			-- Telescope integration
+			local conf = require("telescope.config").values
+			local function toggle_telescope(harpoon_files)
+				local file_paths = {}
+				for _, item in ipairs(harpoon_files.items) do
+					table.insert(file_paths, item.value)
+				end
+
+				require("telescope.pickers").new({}, {
+					prompt_title = "Harpoon",
+					finder = require("telescope.finders").new_table({
+						results = file_paths,
+					}),
+					previewer = conf.file_previewer({}),
+					sorter = conf.generic_sorter({}),
+				}):find()
+			end
+			vim.keymap.set("n", "<leader>se", function() toggle_telescope(harpoon:list()) end,
+				{ desc = "Open harpoon window" })
+		end,
+	},
+	{
+		"xiyaowong/transparent.nvim",
+		config = function()
+			require("transparent").setup({
+				groups = { -- table: default groups
+					'Normal', 'NormalNC', 'Comment', 'Constant', 'Special', 'Identifier',
+					'Statement', 'PreProc', 'Type', 'Underlined', 'Todo', 'String', 'Function',
+					'Conditional', 'Repeat', 'Operator', 'Structure', 'LineNr', 'NonText',
+					'SignColumn', 'CursorLine', 'CursorLineNr', 'StatusLine', 'StatusLineNC',
+					'EndOfBuffer',
+				},
+				extra_groups = {}, -- table: additional groups that should be cleared
+				exclude_groups = {}, -- table: groups you don't want to clearj
 			})
 		end,
 	},
 	{
-		"zbirenbaum/copilot-cmp",
-		config = function()
-			require("copilot_cmp").setup({})
-		end
+		"catppuccin/nvim",
+		name = "catppuccin"
 	},
+	-- {
+	-- 	"zbirenbaum/copilot.lua",
+	-- 	cmd = "Copilot",
+	-- 	event = "InsertEnter",
+	-- 	config = function()
+	-- 		require("copilot").setup({
+	-- 			suggestion = { enabled = false },
+	-- 			panel = { enabled = false },
+	-- 		})
+	-- 	end,
+	-- },
+	-- {
+	-- 	"zbirenbaum/copilot-cmp",
+	-- 	config = function()
+	-- 		require("copilot_cmp").setup({})
+	-- 	end
+	-- },
 	{ "jinh0/eyeliner.nvim" },
 	{
 		"windwp/nvim-autopairs",
