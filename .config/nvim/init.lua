@@ -1,6 +1,9 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+vim.opt.foldmethod = "indent"
+vim.opt.foldcolumn = "1"
+vim.o.foldenable = false
 -- Snippet taken from
 -- https://github.com/folke/lazy.nvim#-installation
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -138,6 +141,56 @@ require("lazy").setup({
 	{
 		"tpope/vim-fugitive"
 
+	},
+	{
+		"kylechui/nvim-surround",
+		version = "*", -- Use for stability; omit to use `main` branch for the latest features
+		event = "VeryLazy",
+		config = function()
+			require("nvim-surround").setup({
+				-- Configuration here, or leave empty to use defaults
+			})
+		end
+	},
+	{
+		"julienvincent/nvim-paredit",
+		config = function()
+			require("nvim-paredit").setup({
+				use_default_keys = true,
+				filetypes = { "janet", "clojure" },
+			})
+		end
+	},
+	{
+		"Olical/conjure",
+		ft = { "clojure", "fennel", "janet" }, -- etc
+		-- [Optional] cmp-conjure for cmp
+		dependencies = {
+			{
+				"PaterJason/cmp-conjure",
+				config = function()
+					local cmp = require("cmp")
+					local config = cmp.get_config()
+					table.insert(config.sources, {
+						name = "buffer",
+						option = {
+							sources = {
+								{ name = "conjure" },
+							},
+						},
+					})
+					cmp.setup(config)
+				end,
+			},
+		},
+		config = function(_, opts)
+			require("conjure.main").main()
+			require("conjure.mapping")["on-filetype"]()
+		end,
+		init = function()
+			-- Set configuration options here
+			vim.g["conjure#debug"] = true
+		end,
 	},
 	{
 		"ThePrimeagen/harpoon",
