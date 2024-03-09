@@ -7,7 +7,7 @@ vim.o.foldenable = false
 -- Snippet taken from
 -- https://github.com/folke/lazy.nvim#-installation
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
 	vim.fn.system({
 		"git",
 		"clone",
@@ -263,6 +263,8 @@ require("lazy").setup({
 			require("nvim-paredit").extension.add_language_extension("janet", janetExtension())
 		end
 	},
+	-- janet syntax for formatter to work
+	{ "bakpakin/janet.vim" },
 	{
 		"Olical/conjure",
 		ft = { "clojure", "fennel", "janet" }, -- etc
