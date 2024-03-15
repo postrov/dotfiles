@@ -299,7 +299,10 @@ require("lazy").setup({
 					}
 				}))
 			paredit.extension.add_language_extension("lisp", createPareditExtension({
-				form_types = { "list_lit" }
+				form_types = {
+					"list_lit",
+					"defun",
+				}
 			}))
 		end
 	},
