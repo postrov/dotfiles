@@ -107,21 +107,11 @@ end
 
 -- Pasza: this is my implementation based on: https://github.com/julienvincent/nvim-paredit-fennel/blob/master/lua/nvim-paredit-fennel/extension.lua
 -- form_types are mine, coming from treesitter's :InspectTree
-local janetExtension = function()
+local createPareditExtension = function(config)
+	local form_types = config.form_types or {}
+	local whitespace_chars = config.whitespace_chars or { " ", "," }
 	local common = require("nvim-paredit.utils.common")
 	local traversal = require("nvim-paredit.utils.traversal")
-	local M = {}
-	local form_types = {
-		"par_tup_lit",
-		"sqr_tup_lit",
-		"qq_lit",
-		"struct_lit",
-		"unquote_lit",
-		-- "short_fn_lit",
-		-- "long_str_lit",
-	}
-	M.whitespace_chars = { " ", "," }
-
 	local function find_next_parent_form(current_node)
 		if common.included_in_table(form_types, current_node:type()) then
 			return current_node
@@ -135,48 +125,38 @@ local janetExtension = function()
 		return current_node
 	end
 
-	M.get_node_root = function(node)
+	local function unwrap_form(node)
+		if common.included_in_table(form_types, node:type()) then
+			return node
+		end
+		local child = node:named_child(0)
+		if child then
+			return unwrap_form(child)
+		end
+	end
+	local function node_is_form(node)
+		if unwrap_form(node) then
+			return true
+		else
+			return false
+		end
+	end
+	local function get_node_root(node)
 		local search_point = node
-		if M.node_is_form(node) then
+		if node_is_form(node) then
 			search_point = node:parent()
 		end
 
 		local root = find_next_parent_form(search_point)
 		return traversal.find_root_element_relative_to(root, node)
 	end
-	-- This is the inverse of `get_node_root` for forms and should find the inner node for which
-	-- the forms elements are direct children.
-	--
-	-- For example given the node `'()` or 'quoting_lit', this function should return `()` or 'list_lit'.
-	M.unwrap_form = function(node)
-		if common.included_in_table(form_types, node:type()) then
-			return node
-		end
-		local child = node:named_child(0)
-		if child then
-			return M.unwrap_form(child)
-		end
-	end
-	-- Accepts a Treesitter node and should return true or false depending on whether the given node
-	-- can be considered a 'form'
-	M.node_is_form = function(node)
-		if M.unwrap_form(node) then
-			return true
-		else
-			return false
-		end
-	end
-	-- Accepts a Treesitter node and should return true or false depending on whether the given node
-	-- can be considered a 'comment'
-	M.node_is_comment = function(node)
+	local node_is_comment = function(node)
 		return node:type() == "comment"
 	end
-	-- Accepts a Treesitter node representing a form and should return the 'edges' of the node. This
-	-- includes the node text and the range covered by the node
-	M.get_form_edges = function(node)
+	local get_form_edges = function(node)
 		local node_range = { node:range() }
 
-		local form = M.unwrap_form(node)
+		local form = unwrap_form(node)
 		local form_range = { form:range() }
 
 		local left_range = { node_range[1], node_range[2] }
@@ -188,7 +168,8 @@ local janetExtension = function()
 		right_range[2] = right_range[4] - 1
 
 		local left_text = vim.api.nvim_buf_get_text(0, left_range[1], left_range[2], left_range[3], left_range[4], {})
-		local right_text = vim.api.nvim_buf_get_text(0, right_range[1], right_range[2], right_range[3], right_range[4],
+		local right_text = vim.api.nvim_buf_get_text(0, right_range[1], right_range[2], right_range[3],
+			right_range[4],
 			{})
 
 		return {
@@ -202,9 +183,16 @@ local janetExtension = function()
 			},
 		}
 	end
+	local M = {
+		whitespace_chars = whitespace_chars,
+		get_node_root = get_node_root,
+		unwrap_form = unwrap_form,
+		node_is_form = node_is_form,
+		node_is_comment = node_is_comment,
+		get_form_edges = get_form_edges,
+	}
 	return M
 end
-
 
 require("lazy").setup({
 	-- {
@@ -240,6 +228,43 @@ require("lazy").setup({
 	-- 		-- see below for full list of options 👇
 	-- 	},
 	-- },
+	-- janet lsp: it works, but it's quite buggy
+	-- {
+	-- 	"neovim/nvim-lspconfig",
+	-- 	lazy = false,
+	-- 	config = function()
+	-- 		local lspconfig = require("lspconfig")
+	-- 		local configs = require("lspconfig.configs")
+	--
+	-- 		if not configs.janet then
+	-- 			configs.janet = {
+	-- 				default_config = {
+	-- 					cmd = { "janet-lsp" },
+	-- 					filetypes = { "janet", "jdn" },
+	-- 					root_dir = lspconfig.util.root_pattern("project.janet"),
+	-- 					single_file_support = true,
+	-- 					settings = {},
+	-- 				},
+	-- 			}
+	-- 		end
+	--
+	-- 		lspconfig.janet.setup({
+	-- 			capabilities = vim.lsp.protocol.make_client_capabilities(),
+	-- 			on_attach = function(client, bufnr)
+	-- 				lsp_on_attach(client, bufnr)
+	-- 				-- Remove this 👇 if you don't want to be notified
+	-- 				print("starting janet-lsp")
+	-- 				-- Optional keymaps here 👇
+	-- 				vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = 0 })
+	-- 				vim.keymap.set("n", "<leader>k", vim.lsp.buf.hover, { buffer = 0 })
+	-- 				vim.keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
+	-- 			end,
+	-- 		})
+	-- 	end,
+	-- },
+	-- {
+	-- 	"gpanders/nvim-parinfer"
+	-- },
 	{
 		"tpope/vim-fugitive"
 
@@ -257,17 +282,32 @@ require("lazy").setup({
 	{
 		"julienvincent/nvim-paredit",
 		config = function()
-			require("nvim-paredit").setup({
-				filetypes = { "janet", "clojure" },
+			local paredit = require("nvim-paredit")
+			paredit.setup({
+				filetypes = { "janet", "clojure", "lisp" },
 			})
-			require("nvim-paredit").extension.add_language_extension("janet", janetExtension())
+			paredit.extension.add_language_extension("janet", createPareditExtension(
+				{
+					form_types = {
+						"par_tup_lit",
+						"sqr_tup_lit",
+						"qq_lit",
+						"struct_lit",
+						"unquote_lit",
+						-- "short_fn_lit",
+						-- "long_str_lit",
+					}
+				}))
+			paredit.extension.add_language_extension("lisp", createPareditExtension({
+				form_types = { "list_lit" }
+			}))
 		end
 	},
 	-- janet syntax for formatter to work
 	{ "bakpakin/janet.vim" },
 	{
 		"Olical/conjure",
-		ft = { "clojure", "fennel", "janet" }, -- etc
+		ft = { "clojure", "fennel", "janet", "lisp" }, -- etc
 		-- [Optional] cmp-conjure for cmp
 		dependencies = {
 			{
@@ -480,6 +520,19 @@ require("lazy").setup({
 		"folke/todo-comments.nvim",
 		dependencies = { "nvim-lua/plenary.nvim" },
 		opts = {
+			highlight = {
+				multiline = true,                -- enable multine todo comments
+				multiline_pattern = "^.",        -- lua pattern to match the next multiline from the start of the matched keyword
+				multiline_context = 10,          -- extra lines that will be re-evaluated when changing a line
+				before = "bg",                   -- "fg" or "bg" or empty
+				keyword = "wide",                -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
+				after = "bg",                    -- "fg" or "bg" or empty
+				pattern = [[.*<(KEYWORDS)(\([^)]+\))?\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
+				-- pattern = [[.*<(KEYWORDS)\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
+				comments_only = true,            -- uses treesitter to match keywords in comments only
+				max_line_len = 400,              -- ignore lines longer than this
+				exclude = {},                    -- list of file types to exclude highlighting
+			},
 			-- highlight = {
 			-- 	before = "bg",
 			-- 	after = "bg",
