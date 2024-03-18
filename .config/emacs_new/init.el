@@ -79,9 +79,22 @@
   (if (display-graphic-p)
       (progn
 	(set-frame-parameter nil 'alpha-background 90)
-	(set-frame-font "Cascadia Code PL-13"))
+	(cond
+	 ((member "Cascadia Code" (font-family-list))
+	  (set-frame-font "Cascadia Code PL-13"))
+	 ((member "Monaco" (font-family-list))
+	  (set-frame-font "Monaco-12"))
+	 ((member "Inconsolata" (font-family-list))
+	  (set-frame-font "Inconsolata-12"))
+	 ((member "Consolas" (font-family-list))
+	  (set-frame-font "Consolas-11"))
+	 ((member "DejaVu Sans Mono" (font-family-list))
+	  (set-frame-font "DejaVu Sans Mono-13"))
+	 (t nil)))
     (progn (set-face-background 'default "undefined")
 	   (set-face-background 'line-number "undefined"))))
+
+
 
 (use-package catppuccin-theme
   :init (my-theme-settings))
@@ -94,7 +107,7 @@
  '(custom-safe-themes
    '("80214de566132bf2c844b9dee3ec0599f65c5a1f2d6ff21a2c8309e6e70f9242" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode slime-company slime go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
+   '(compat prescient catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode slime-company slime go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
