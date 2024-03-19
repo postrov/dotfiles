@@ -105,7 +105,7 @@
  '(custom-safe-themes
    '("80214de566132bf2c844b9dee3ec0599f65c5a1f2d6ff21a2c8309e6e70f9242" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(compat prescient catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode slime-company slime go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
+   '(slynk sly flycheck compat prescient catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode slime-company slime go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -129,13 +129,38 @@
 (evil-define-key 'normal 'global (kbd "<leader>p") 'affe-find)
 (evil-define-key 'normal 'global (kbd "<leader>s g") 'affe-grep)
 
-;; TODO: load only for go
-(use-package go-mode)
+(use-package go-mode
+  :mode "\\.go\\'"
+  :config
+  (defun my/go-mode-setup ()
+    "Basic Go mode setup."
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t)))
+
+(use-package lsp-ui)
+(use-package lsp-mode
+  :ensure t
+  :commands (lsp lsp-mode lsp-deferred)
+  :hook ((rust-mode go-mode) . lsp-deferred)
+  :config
+  (setq lsp-prefer-flymake nil
+        lsp-enable-indentation nil
+        lsp-enable-on-type-formatting nil
+        lsp-rust-server 'rust-analyzer)
+  ;; for filling args placeholders upon function completion candidate selection
+  ;; lsp-enable-snippet and company-lsp-enable-snippet should be nil with
+  ;; yas-minor-mode is enabled: https://emacs.stackexchange.com/q/53104
+  (lsp-modeline-code-actions-mode)
+  ;; (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+  (add-to-list 'lsp-file-watch-ignored "\\.vscode\\'"))
 
 ;; TODO: load only on lisp
-(use-package slime)
+;(use-package slime)
 ;; TODO: SETUP
-(use-package slime-company)
+;(use-package slime-company)
+(use-package sly
+  :mode ("\\.lisp\\'" . lisp-mode))
+
 
 
 ;; (use-package lsp-mode
