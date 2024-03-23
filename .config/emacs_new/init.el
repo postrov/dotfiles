@@ -113,7 +113,7 @@
  ;; If there is more than one, they won't work right.
  )
 
-(evil-set-leader 'normal (kbd "SPC"))
+(evil-set-leader '(normal visual) (kbd "SPC"))
 (evil-define-key 'normal 'global (kbd "<leader>SPC") 'switch-to-buffer)
 
 (use-package vertico :config (vertico-mode +1))
@@ -155,7 +155,18 @@
   (add-to-list 'lsp-file-watch-ignored "\\.vscode\\'"))
 
 (use-package sly
-  :mode ("\\.lisp\\'" . lisp-mode))
+  :mode ("\\.lisp\\'" . lisp-mode)
+  :hook (sly-mode lambda ()
+	    (company-mode)
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>er") 'sly-eval-defun)
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>ee") 'sly-eval-last-expression)
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>eb") 'sly-eval-buffer)
+            (define-key evil-visual-state-local-map
+                        (kbd "<leader>E") 'sly-eval-region)
+	    ))
 
 
 
