@@ -79,7 +79,7 @@
   (if (display-graphic-p)
       (progn
 	;; don't enable transparency on windows/wsl
-	(unless (member system-name '("LAPTOP-TH7UB9JA"))
+	(unless (member system-name '("LAPTOP-TH7UB9JA" "Pasza-PC"))
 	  (set-frame-parameter nil 'alpha-background 90))
 	(when-let ((available-fonts (font-family-list))
 		   (found (seq-find (lambda (x) (member (car x) available-fonts))
@@ -130,6 +130,8 @@
 
 (evil-define-key 'normal 'global (kbd "<leader>p") 'affe-find)
 (evil-define-key 'normal 'global (kbd "<leader>s g") 'affe-grep)
+(evil-define-key 'normal 'global (kbd "<leader>/") 'comment-line)
+
 
 (use-package go-mode
   :mode "\\.go\\'"
@@ -168,6 +170,8 @@
                         (kbd "<leader>eb") 'sly-eval-buffer)
             (define-key evil-visual-state-local-map
                         (kbd "<leader>E") 'sly-eval-region)
+            (define-key evil-visual-state-local-map
+                        (kbd "<leader>lfr") 'sly-edit-uses)
 	    ))
 
 
