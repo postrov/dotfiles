@@ -5,6 +5,7 @@
 
 (package-initialize)
 
+(setq warning-minimum-level :error)
 (setq use-package-always-ensure t)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -73,12 +74,13 @@
 
 ;;; Appearance
 ;; when display-graphic-p
-
 (defun my-theme-settings ()
   (load-theme 'catppuccin :no-confirm)
   (if (display-graphic-p)
       (progn
-	(set-frame-parameter nil 'alpha-background 90)
+	;; don't enable transparency on windows/wsl
+	(unless (member system-name '("LAPTOP-TH7UB9JA"))
+	  (set-frame-parameter nil 'alpha-background 90))
 	(when-let ((available-fonts (font-family-list))
 		   (found (seq-find (lambda (x) (member (car x) available-fonts))
 				    '(("Cascadia Code" . 13)
