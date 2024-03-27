@@ -26,6 +26,8 @@
   :init
   ;; allows for using cgn
   ;; (setq evil-search-module 'evil-search)
+  ;; "\" switches to emacs for one command, so just "\ C-u" if needed
+  (setq evil-want-C-u-scroll t)
   (setq evil-want-keybinding nil)
   ;; no vim insert bindings
   (setq evil-undo-system 'undo-fu)
