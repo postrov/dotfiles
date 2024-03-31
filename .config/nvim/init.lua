@@ -113,6 +113,10 @@ local createPareditExtension = function(config)
 	local common = require("nvim-paredit.utils.common")
 	local traversal = require("nvim-paredit.utils.traversal")
 	local function find_next_parent_form(current_node)
+		-- FIXME(@pasza): this is to prevent npe in 4j, but it does not return sensible value
+		if not current_node then
+			return nil
+		end
 		if common.included_in_table(form_types, current_node:type()) then
 			return current_node
 		end
@@ -284,7 +288,7 @@ require("lazy").setup({
 		config = function()
 			local paredit = require("nvim-paredit")
 			paredit.setup({
-				filetypes = { "janet", "clojure", "lisp" },
+				filetypes = { "janet", "clojure", "lisp", "scheme" },
 			})
 			paredit.extension.add_language_extension("janet", createPareditExtension(
 				{
@@ -304,13 +308,18 @@ require("lazy").setup({
 					"defun",
 				}
 			}))
+			paredit.extension.add_language_extension("scheme", createPareditExtension({
+				form_types = {
+					"list",
+				}
+			}))
 		end
 	},
 	-- janet syntax for formatter to work
 	{ "bakpakin/janet.vim" },
 	{
 		"Olical/conjure",
-		ft = { "clojure", "fennel", "janet", "lisp" }, -- etc
+		ft = { "clojure", "fennel", "janet", "lisp", "scheme" }, -- etc
 		-- [Optional] cmp-conjure for cmp
 		dependencies = {
 			{
@@ -337,54 +346,56 @@ require("lazy").setup({
 		init = function()
 			-- Set configuration options here
 			vim.g["conjure#debug"] = false
+			vim.g["conjure#client#scheme#stdio#command"] = "csi -quiet -:c"
+			vim.g["conjure#client#scheme#stdio#prompt_pattern"] = "\n-#;%d-> "
 		end,
 	},
-	{
-		"ThePrimeagen/harpoon",
-		name = "harpoon",
-		branch = "harpoon2",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-telescope/telescope.nvim",
-		},
-
-		config = function()
-			local harpoon = require("harpoon")
-			harpoon.setup()
-			-- keymaps
-			vim.keymap.set("n", "<leader>h", function() harpoon:list():append() end)
-			vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
-
-			vim.keymap.set("n", "<C-h>", function() harpoon:list():select(1) end)
-			vim.keymap.set("n", "<C-t>", function() harpoon:list():select(2) end)
-			vim.keymap.set("n", "<C-n>", function() harpoon:list():select(3) end)
-			vim.keymap.set("n", "<C-s>", function() harpoon:list():select(4) end)
-
-			-- Toggle previous & next buffers stored within Harpoon list
-			vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
-			vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
-
-			-- Telescope integration
-			local conf = require("telescope.config").values
-			local function toggle_telescope(harpoon_files)
-				local file_paths = {}
-				for _, item in ipairs(harpoon_files.items) do
-					table.insert(file_paths, item.value)
-				end
-
-				require("telescope.pickers").new({}, {
-					prompt_title = "Harpoon",
-					finder = require("telescope.finders").new_table({
-						results = file_paths,
-					}),
-					previewer = conf.file_previewer({}),
-					sorter = conf.generic_sorter({}),
-				}):find()
-			end
-			vim.keymap.set("n", "<leader>se", function() toggle_telescope(harpoon:list()) end,
-				{ desc = "Open harpoon window" })
-		end,
-	},
+	-- {
+	-- 	"ThePrimeagen/harpoon",
+	-- 	name = "harpoon",
+	-- 	branch = "harpoon2",
+	-- 	dependencies = {
+	-- 		"nvim-lua/plenary.nvim",
+	-- 		"nvim-telescope/telescope.nvim",
+	-- 	},
+	--
+	-- 	config = function()
+	-- 		local harpoon = require("harpoon")
+	-- 		harpoon.setup()
+	-- 		-- keymaps
+	-- 		vim.keymap.set("n", "<leader>h", function() harpoon:list():append() end)
+	-- 		vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+	--
+	-- 		vim.keymap.set("n", "<C-h>", function() harpoon:list():select(1) end)
+	-- 		vim.keymap.set("n", "<C-t>", function() harpoon:list():select(2) end)
+	-- 		vim.keymap.set("n", "<C-n>", function() harpoon:list():select(3) end)
+	-- 		vim.keymap.set("n", "<C-s>", function() harpoon:list():select(4) end)
+	--
+	-- 		-- Toggle previous & next buffers stored within Harpoon list
+	-- 		vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
+	-- 		vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
+	--
+	-- 		-- Telescope integration
+	-- 		local conf = require("telescope.config").values
+	-- 		local function toggle_telescope(harpoon_files)
+	-- 			local file_paths = {}
+	-- 			for _, item in ipairs(harpoon_files.items) do
+	-- 				table.insert(file_paths, item.value)
+	-- 			end
+	--
+	-- 			require("telescope.pickers").new({}, {
+	-- 				prompt_title = "Harpoon",
+	-- 				finder = require("telescope.finders").new_table({
+	-- 					results = file_paths,
+	-- 				}),
+	-- 				previewer = conf.file_previewer({}),
+	-- 				sorter = conf.generic_sorter({}),
+	-- 			}):find()
+	-- 		end
+	-- 		vim.keymap.set("n", "<leader>se", function() toggle_telescope(harpoon:list()) end,
+	-- 			{ desc = "Open harpoon window" })
+	-- 	end,
+	-- },
 	{
 		"xiyaowong/transparent.nvim",
 		config = function()
