@@ -313,6 +313,39 @@ require("lazy").setup({
 					"list",
 				}
 			}))
+			vim.keymap.set("n", "<Leader>w",
+				function()
+					-- place cursor and set mode to `insert`
+					paredit.cursor.place_cursor(
+					-- wrap element under cursor with `( ` and `)`
+						paredit.wrap.wrap_element_under_cursor("( ", ")"),
+						-- cursor placement opts
+						{ placement = "inner_start", mode = "insert" }
+					)
+				end)
+
+			vim.keymap.set("n", "<Leader>W",
+				function()
+					paredit.cursor.place_cursor(
+						paredit.wrap.wrap_element_under_cursor("(", ")"),
+						{ placement = "inner_end", mode = "insert" }
+					)
+				end)
+
+			vim.keymap.set("n", "<Leader>i",
+				function()
+					paredit.cursor.place_cursor(
+						paredit.wrap.wrap_enclosing_form_under_cursor("( ", ")"),
+						{ placement = "inner_start", mode = "insert" }
+					)
+				end)
+			vim.keymap.set("n", "<Leader>I",
+				function()
+					paredit.cursor.place_cursor(
+						paredit.wrap.wrap_enclosing_form_under_cursor("(", ")"),
+						{ placement = "inner_end", mode = "insert" }
+					)
+				end)
 		end
 	},
 	-- janet syntax for formatter to work
