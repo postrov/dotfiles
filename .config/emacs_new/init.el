@@ -109,7 +109,7 @@
  '(custom-safe-themes
    '("80214de566132bf2c844b9dee3ec0599f65c5a1f2d6ff21a2c8309e6e70f9242" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(slynk sly flycheck compat prescient catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
+   '(paredit slynk sly flycheck compat prescient catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -176,9 +176,44 @@
                         (kbd "<leader>lfr") 'sly-edit-uses)
 	    ))
 
+; (use-package evil-paredit
+; 	:after paredit)
 
+(use-package paredit
+    :init
+    (add-hook 'clojure-mode-hook #'enable-paredit-mode)
+    (add-hook 'cider-repl-mode-hook #'enable-paredit-mode)
+    (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+    (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+    (add-hook 'ielm-mode-hook #'enable-paredit-mode)
+    (add-hook 'lisp-mode-hook #'enable-paredit-mode)
+    (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+    (add-hook 'scheme-mode-hook #'enable-paredit-mode)
+    :config
+    (show-paren-mode t)
+    :hook (paredit-mode lambda ()
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>@") 'paredit-splice-sexp)
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>w") 'paredit-wrap-sexp)
+            (define-key evil-normal-state-local-map
+                        (kbd ">)") 'paredit-forward-slurp-sexp)
+            (define-key evil-normal-state-local-map
+                        (kbd "<)") 'paredit-forward-barf-sexp)
+            (define-key evil-normal-state-local-map
+                        (kbd ">(") 'paredit-backward-barf-sexp)
+            (define-key evil-normal-state-local-map
+                        (kbd "<(") 'paredit-backward-slurp-sexp)
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>o") 'paredit-raise-sexp)
+	    )
+    :diminish nil
+    )
 
-;; (use-package lsp-mode
+;;     :bind (("M-[" . paredit-wrap-square)
+;; 	   ("M-{" . paredit-wrap-curly))
+
+;; ;; (use-package lsp-mode
 ;; ;  :if my-laptop-p
 ;;   :config
 ;;   (setq lsp-headerline-breadcrumb-enable t
@@ -221,3 +256,58 @@
 ;;                 (add-hook 'before-save-hook
 ;;                           (lambda ()
 ;;                             (rust-format-buffer)) nil t)))))  
+
+(use-package consult
+  ;:load-path "~/vendor/consult"
+  ;:quelpa (consult :fetcher github :repo "minad/consult")
+  :after projectile
+  :bind (("C-x r x" . consult-register)
+         ("C-x r b" . consult-bookmark)
+         ("C-c k" . consult-kmacro)
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complet-command
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ("M-g o" . consult-outline)
+         ("M-g h" . consult-org-heading)
+         ("M-g a" . consult-org-agenda)
+         ("M-g m" . consult-mark)
+         ("C-x b" . consult-buffer)
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-project-imenu)
+         ("M-g e" . consult-error)
+         ;; M-s bindings (search-map)
+         ("M-s f" . consult-find)
+         ("M-s i" . consult-info)
+         ("M-s L" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s m" . consult-multi-occur)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch)
+         ("M-g l" . consult-line)
+         ("M-s m" . consult-multi-occur)
+         ("C-x c o" . consult-multi-occur)
+         ("C-x c SPC" . consult-mark)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch)                 ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch)               ;; orig. isearch-edit-string
+         ("M-s l" . consult-line))
+  :init
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format)
+  :custom
+  consult-preview-key '(:debounce 0.2 any)
+  consult-narrow-key "<"
+  :config
+  (setq consult-project-root-function #'projectile-project-root))
