@@ -232,6 +232,7 @@ require("lazy").setup({
 	-- 		-- see below for full list of options 👇
 	-- 	},
 	-- },
+	--
 	-- janet lsp: it works, but it's quite buggy
 	-- {
 	-- 	"neovim/nvim-lspconfig",
@@ -561,7 +562,7 @@ require("lazy").setup({
 	-- "fatih/vim-go",
 	{
 		"jose-elias-alvarez/null-ls.nvim",
-		ft = "go",
+		ft = { "go", "python" },
 	},
 	{
 		"folke/todo-comments.nvim",
@@ -615,6 +616,7 @@ require("lazy").setup({
 				-- "gopls",
 				"eslint",
 				"rust_analyzer",
+				"pyright",
 			})
 
 			lsp.set_preferences({
@@ -706,6 +708,7 @@ require("lazy").setup({
 	},
 	{
 		"rcarriga/nvim-dap-ui",
+		dependencies = "nvim-neotest/nvim-nio",
 		config = function()
 			require("dapui").setup()
 			local dap, dapui = require("dap"), require("dapui")
@@ -796,9 +799,26 @@ lspconfig.gopls.setup {
 				unusedparams = true, -- warn about unused params (doesn't seem to work)
 			},
 			staticcheck = true,
+			hints = {
+				assignVariableTypes = true,
+				compositeLiteralFields = true,
+				compositeLiteralTypes = true,
+				constantValues = true,
+				functionTypeParameters = true,
+				parameterNames = true,
+				rangeVariableTypes = true,
+			},
 		}
 	}
 }
+-- python lsp setup
+lspconfig.pyright.setup({
+	on_attach = function(client, buffnr)
+		lsp_on_attach(client, buffnr)
+		-- additional python specific stuff here
+	end,
+	-- capabilities = capabilities,
+})
 
 vim.filetype.add({
 	extension = {
@@ -851,6 +871,8 @@ null_ls.setup({
 		null_ls.builtins.formatting.goimports_reviser,
 		-- null_ls.builtins.formatting.golines,
 		-- null_ls.builtins.formatting.stylua,
+		null_ls.builtins.diagnostics.mypy,
+		null_ls.builtins.diagnostics.ruff,
 	}
 })
 -- pasza: vim.keymap.set("i", "jj", "<Esc>")
@@ -914,6 +936,8 @@ vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]re
 vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>ss", builtin.lsp_dynamic_workspace_symbols, { desc = "[S]earch [S]ymbols" })
 
+vim.keymap.set("n", "<leader>hh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+	{ desc = "[H]ello [H]ello" })
 -- TREESITTER
 require("nvim-treesitter.configs").setup({
 	ensure_installed = { "c", "lua", "vim", "go", "javascript", "typescript", "rust" },
