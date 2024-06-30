@@ -199,6 +199,12 @@ local createPareditExtension = function(config)
 end
 
 require("lazy").setup({
+	{
+		'stevearc/oil.nvim',
+		opts = {},
+		-- Optional dependencies
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+	},
 	-- {
 	-- 	"epwalsh/obsidian.nvim",
 	-- 	version = "*", -- recommended, use latest release instead of latest commit
@@ -707,6 +713,15 @@ require("lazy").setup({
 		end,
 	},
 	{
+		'mfussenegger/nvim-dap-python',
+		dependencies = "mfussenegger/nvim-dap",
+		ft = 'python',
+		config = function()
+			print('dap python loading')
+			require("dap-python").setup("python")
+		end
+	},
+	{
 		"rcarriga/nvim-dap-ui",
 		dependencies = "nvim-neotest/nvim-nio",
 		config = function()
@@ -731,6 +746,17 @@ require("lazy").setup({
 			dap.listeners.after.event_exited["dapui_config"] = function()
 				dapui.close()
 			end
+			dap.configurations.python = {
+				{
+					type = 'python',
+					request = 'launch',
+					name = "Launch file",
+					program = "${file}",
+					pythonPath = function()
+						return '/usr/bin/python'
+					end,
+				},
+			}
 		end
 	},
 	{
