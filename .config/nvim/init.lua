@@ -199,6 +199,24 @@ local createPareditExtension = function(config)
 end
 
 require("lazy").setup({
+	-- {
+	-- 	"folke/which-key.nvim",
+	-- 	event = "VeryLazy",
+	-- 	opts = {
+	-- 		-- your configuration comes here
+	-- 		-- or leave it empty to use the default settings
+	-- 		-- refer to the configuration section below
+	-- 	},
+	-- 	keys = {
+	-- 		{
+	-- 			"<leader>?",
+	-- 			function()
+	-- 				require("which-key").show({ global = false })
+	-- 			end,
+	-- 			desc = "Buffer Local Keymaps (which-key)",
+	-- 		},
+	-- 	},
+	-- },
 	{
 		'stevearc/oil.nvim',
 		opts = {},
@@ -575,17 +593,17 @@ require("lazy").setup({
 		dependencies = { "nvim-lua/plenary.nvim" },
 		opts = {
 			highlight = {
-				multiline = true,                -- enable multine todo comments
-				multiline_pattern = "^.",        -- lua pattern to match the next multiline from the start of the matched keyword
-				multiline_context = 10,          -- extra lines that will be re-evaluated when changing a line
-				before = "bg",                   -- "fg" or "bg" or empty
-				keyword = "wide",                -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
-				after = "bg",                    -- "fg" or "bg" or empty
-				pattern = [[.*<(KEYWORDS)(\([^)]+\))?\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
+				multiline = true,                 -- enable multine todo comments
+				multiline_pattern = "^.",         -- lua pattern to match the next multiline from the start of the matched keyword
+				multiline_context = 10,           -- extra lines that will be re-evaluated when changing a line
+				before = "bg",                    -- "fg" or "bg" or empty
+				keyword = "wide",                 -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
+				after = "fg",                     -- "fg" or "bg" or empty
+				pattern = [[.*<(KEYWORDS)(\([^\)]+\))?\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
 				-- pattern = [[.*<(KEYWORDS)\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
-				comments_only = true,            -- uses treesitter to match keywords in comments only
-				max_line_len = 400,              -- ignore lines longer than this
-				exclude = {},                    -- list of file types to exclude highlighting
+				comments_only = true,             -- uses treesitter to match keywords in comments only
+				max_line_len = 400,               -- ignore lines longer than this
+				exclude = {},                     -- list of file types to exclude highlighting
 			},
 			-- highlight = {
 			-- 	before = "bg",
@@ -963,7 +981,7 @@ vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iag
 vim.keymap.set("n", "<leader>ss", builtin.lsp_dynamic_workspace_symbols, { desc = "[S]earch [S]ymbols" })
 
 vim.keymap.set("n", "<leader>hh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
-	{ desc = "[H]ello [H]ello" })
+	{ desc = "Inlay [Hints] Toggle" })
 -- TREESITTER
 require("nvim-treesitter.configs").setup({
 	ensure_installed = { "c", "lua", "vim", "go", "javascript", "typescript", "rust" },
