@@ -85,11 +85,13 @@ local cmpSetup = function()
 	cmp.setup {
 		mapping = {
 			['<Tab>'] = function(fallback)
-				if cmp.visible() then
-					cmp.select_next_item()
-				else
-					fallback()
-				end
+				-- this actully needs to be here to prevent default tab behavior
+				fallback()
+				-- if cmp.visible() then
+				-- 	cmp.select_next_item()
+				-- else
+				-- 	fallback()
+				-- end
 			end,
 			['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
 			['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
@@ -675,11 +677,11 @@ require("lazy").setup({
 			lsp.preset("recommended")
 
 			lsp.ensure_installed({
-				"tsserver",
+				--"tsserver",
 				-- "gopls",
-				"eslint",
-				"rust_analyzer",
-				"pyright",
+				--"eslint",
+				--"rust_analyzer",
+				--"pyright",
 			})
 
 			lsp.set_preferences({
