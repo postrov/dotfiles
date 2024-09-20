@@ -25,6 +25,7 @@ vim.o.background = "dark"
 vim.opt.guicursor = "i:block"
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
+-- vim.opt.expandtab = true
 -- Disable Vim's mode indicator (i.e. -- INSERT --) so
 -- it doesn't visually conflict with `lualine.nvim`
 vim.opt.showmode = false
