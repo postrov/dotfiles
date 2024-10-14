@@ -226,6 +226,17 @@ require("lazy").setup({
 		-- Optional dependencies
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 	},
+	{
+		"luckasRanarison/tailwind-tools.nvim",
+		name = "tailwind-tools",
+		build = ":UpdateRemotePlugins",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+			"nvim-telescope/telescope.nvim", -- optional
+			"neovim/nvim-lspconfig", -- optional
+		},
+		opts = {} -- your configuration
+	},
 	-- {
 	-- 	"epwalsh/obsidian.nvim",
 	-- 	version = "*", -- recommended, use latest release instead of latest commit
@@ -820,16 +831,6 @@ require("lazy").setup({
 		end
 	},
 	{
-		"akinsho/toggleterm.nvim",
-		version = "*",
-		opts = {
-			direction = "horizontal",
-			size = 15,
-			open_mapping = [[<M-j>]],
-		},
-	},
-	-- "jhlgns/naysayer88.vim",
-	{
 		"terrortylor/nvim-comment",
 		config = function()
 			require("nvim_comment").setup({
@@ -968,10 +969,6 @@ null_ls.setup({
 
 
 -- vim.keymap.set("n", "<M-b>", ":Ex<CR>")
-require('lspconfig').tailwindcss.setup {
-	hovers = true,
-	suggestions = true,
-}
 
 local function bind(op, outer_opts)
 	outer_opts = outer_opts or { noremap = true }
