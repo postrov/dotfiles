@@ -52,33 +52,37 @@ end
 
 -- format on save
 local augrup = vim.api.nvim_create_augroup("LspFormatting", {})
-local lsp_on_attach = function(client, bufnr)
-	if client.supports_method("textDocument/formatting") then
-		vim.api.nvim_clear_autocmds({
-			group = augrup,
-			buffer = bufnr,
-		})
-		vim.api.nvim_create_autocmd("BufWritePre", {
-			group = augrup,
-			buffer = bufnr,
-			callback = function()
-				vim.lsp.buf.format({ bufnr = bufnr })
-			end
-		})
+local mk_lsp_on_attach = function(t)
+	setmetatable(t, { __index = { do_format_on_save = true } })
+	return function(client, bufnr)
+		if client.supports_method("textDocument/formatting") then
+			vim.api.nvim_clear_autocmds({
+				group = augrup,
+				buffer = bufnr,
+			})
+			vim.api.nvim_create_autocmd("BufWritePre", {
+				group = augrup,
+				buffer = bufnr,
+				callback = function()
+					vim.lsp.buf.format({ bufnr = bufnr })
+				end
+			})
+		end
+		-- vim.keymap.set("n", "<Leader>k", "<cmd> lua rt.hover_actions.hover_actions()<CR>", { buffer = bufnr })
+		-- vim.keymap.set("n", "<Leader>a", "<cmd> lua rt.code_action_group.code_action_group()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>k", "<cmd> lua vim.lsp.buf.code_action()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>lj", "<cmd> lua vim.diagnostic.goto_next()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>lk", "<cmd> lua vim.diagnostic.goto_prev()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>lc", "<cmd> lua vim.lsp.codelens.run()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>gd", "<cmd> lua vim.lsp.buf.definition()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>lrn", "<cmd> lua vim.lsp.buf.rename()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>lfr", "<cmd> lua vim.lsp.buf.references()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>hs", "<cmd> lua vim.lsp.buf.signature_help()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>ld", "<cmd> lua vim.diagnostic.open_float()<CR>", { buffer = bufnr })
+		vim.keymap.set("n", "<Leader>hd", "<cmd> lua vim.lsp.buf.hover()<CR>", { buffer = bufnr })
 	end
-	-- vim.keymap.set("n", "<Leader>k", "<cmd> lua rt.hover_actions.hover_actions()<CR>", { buffer = bufnr })
-	-- vim.keymap.set("n", "<Leader>a", "<cmd> lua rt.code_action_group.code_action_group()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>k", "<cmd> lua vim.lsp.buf.code_action()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>lj", "<cmd> lua vim.diagnostic.goto_next()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>lk", "<cmd> lua vim.diagnostic.goto_prev()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>lc", "<cmd> lua vim.lsp.codelens.run()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>gd", "<cmd> lua vim.lsp.buf.definition()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>lrn", "<cmd> lua vim.lsp.buf.rename()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>lfr", "<cmd> lua vim.lsp.buf.references()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>hs", "<cmd> lua vim.lsp.buf.signature_help()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>ld", "<cmd> lua vim.diagnostic.open_float()<CR>", { buffer = bufnr })
-	vim.keymap.set("n", "<Leader>hd", "<cmd> lua vim.lsp.buf.hover()<CR>", { buffer = bufnr })
 end
+local lsp_on_attach = mk_lsp_on_attach { do_format_on_save = true }
 -- local lsp_capabilities = ..
 local cmpSetup = function()
 	local cmp = require("cmp")
@@ -221,10 +225,68 @@ require("lazy").setup({
 	-- 	},
 	-- },
 	{
+		"yetone/avante.nvim",
+		enabled = (function()
+			local anthropicKey = os.getenv("ANTHROPIC_API_KEY")
+			return anthropicKey ~= nil and anthropicKey ~= ""
+		end)(),
+		event = "VeryLazy",
+		lazy = false,
+		version = false, -- set this if you want to always pull the latest change
+		opts = {
+			-- add any opts here
+			provider = "claude",
+			hints = {
+				enabled = true,
+			},
+		},
+		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+		build = "make",
+		-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+			"stevearc/dressing.nvim",
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+			--- The below dependencies are optional,
+			"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+			"zbirenbaum/copilot.lua", -- for providers='copilot'
+			{
+				-- support for image pasting
+				"HakonHarnes/img-clip.nvim",
+				event = "VeryLazy",
+				opts = {
+					-- recommended settings
+					default = {
+						embed_image_as_base64 = false,
+						prompt_for_file_name = false,
+						drag_and_drop = {
+							insert_mode = true,
+						},
+						-- required for Windows users
+						use_absolute_path = true,
+					},
+				},
+			},
+			{
+				-- Make sure to set this up properly if you have lazy=true
+				'MeanderingProgrammer/render-markdown.nvim',
+				opts = {
+					file_types = { "markdown", "Avante" },
+				},
+				ft = { "markdown", "Avante" },
+			},
+		},
+	},
+	{
 		'stevearc/oil.nvim',
 		opts = {},
 		-- Optional dependencies
 		dependencies = { "nvim-tree/nvim-web-devicons" },
+	},
+	{
+		"nvim-java/nvim-java",
+		config = false,
 	},
 	{
 		"luckasRanarison/tailwind-tools.nvim",
@@ -235,7 +297,7 @@ require("lazy").setup({
 			"nvim-telescope/telescope.nvim", -- optional
 			"neovim/nvim-lspconfig", -- optional
 		},
-		opts = {} -- your configuration
+		opts = {}                   -- your configuration
 	},
 	-- {
 	-- 	"epwalsh/obsidian.nvim",
@@ -900,12 +962,20 @@ lspconfig.gopls.setup {
 }
 -- python lsp setup
 lspconfig.pyright.setup({
-	on_attach = function(client, buffnr)
-		lsp_on_attach(client, buffnr)
-		-- additional python specific stuff here
-	end,
+	on_attach = lsp_on_attach,
 	-- capabilities = capabilities,
 })
+
+-- java lsp setup
+lspconfig.jdtls.setup({
+	on_attach = lsp_on_attach,
+})
+
+-- c lsp setup
+require('lspconfig').clangd.setup {
+	filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto", "hpp" },
+	on_attach = lsp_on_attach,
+}
 
 vim.filetype.add({
 	extension = {
@@ -952,7 +1022,7 @@ require('lspconfig').elixirls.setup {
 	on_attach = lsp_on_attach,
 }
 require('lspconfig').tsserver.setup {
-	on_attach = lsp_on_attach,
+	on_attach = mk_lsp_on_attach { do_format_on_save = true },
 }
 local null_ls = require("null-ls")
 null_ls.setup({
@@ -964,6 +1034,49 @@ null_ls.setup({
 		null_ls.builtins.diagnostics.mypy,
 		null_ls.builtins.diagnostics.ruff,
 	}
+})
+
+
+require('lspconfig').nixd.setup({
+	cmd = { "nixd" },
+	settings = {
+		nixd = {
+			nixpkgs = {
+				expr = "import <nixpkgs> { }",
+			},
+			formatting = {
+				command = { "alejandra" },
+			},
+		},
+	},
+})
+
+
+
+lspconfig.emmet_language_server.setup({
+	filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "pug", "typescriptreact" },
+	-- Read more about this options in the [vscode docs](https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration).
+	-- **Note:** only the options listed in the table are supported.
+	init_options = {
+		---@type table<string, string>
+		includeLanguages = {},
+		--- @type string[]
+		excludeLanguages = {},
+		--- @type string[]
+		extensionsPath = {},
+		--- @type table<string, any> [Emmet Docs](https://docs.emmet.io/customization/preferences/)
+		preferences = {},
+		--- @type boolean Defaults to `true`
+		showAbbreviationSuggestions = true,
+		--- @type "always" | "never" Defaults to `"always"`
+		showExpandedAbbreviation = "always",
+		--- @type boolean Defaults to `false`
+		showSuggestionsAsSnippets = false,
+		--- @type table<string, any> [Emmet Docs](https://docs.emmet.io/customization/syntax-profiles/)
+		syntaxProfiles = {},
+		--- @type table<string, string> [Emmet Docs](https://docs.emmet.io/customization/snippets/#variables)
+		variables = {},
+	},
 })
 -- pasza: vim.keymap.set("i", "jj", "<Esc>")
 
