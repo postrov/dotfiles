@@ -1078,6 +1078,10 @@ lspconfig.emmet_language_server.setup({
 		variables = {},
 	},
 })
+
+lspconfig.zls.setup({
+	on_attach = lsp_on_attach,
+})
 -- pasza: vim.keymap.set("i", "jj", "<Esc>")
 
 
