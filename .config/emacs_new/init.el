@@ -148,6 +148,22 @@
   :ensure t
   :commands (lsp lsp-mode lsp-deferred)
   :hook ((rust-mode go-mode) . lsp-deferred)
+  :init (add-hook
+	 'lsp-mode-hook
+	 (lambda nil
+	   (define-key evil-normal-state-local-map
+		       (kbd "<leader>gd") 'lsp-find-definition)
+	   (define-key evil-normal-state-local-map
+		       (kbd "<leader>lfr") 'lsp-find-references)
+	   (define-key evil-normal-state-local-map
+		       (kbd "<leader>lrn") 'lsp-rename)
+	   (define-key evil-normal-state-local-map
+		       (kbd "<leader>lj") 'flycheck-next-error)
+	   (define-key evil-normal-state-local-map
+		       (kbd "<leader>lk") 'flycheck-previous-error)
+	   (define-key evil-normal-state-local-map
+		       (kbd "<leader>k") 'lsp-execute-code-action)
+	   ))
   :config
   (setq lsp-prefer-flymake nil
         lsp-enable-indentation nil
