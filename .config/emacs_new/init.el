@@ -172,8 +172,10 @@
                         (kbd "<leader>eb") 'sly-eval-buffer)
             (define-key evil-visual-state-local-map
                         (kbd "<leader>E") 'sly-eval-region)
-            (define-key evil-visual-state-local-map
+            (define-key evil-normal-state-local-map
                         (kbd "<leader>lfr") 'sly-edit-uses)
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>gd") 'sly-edit-definition)
 	    ))
 
 ; (use-package evil-paredit
