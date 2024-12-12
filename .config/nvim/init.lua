@@ -3,7 +3,9 @@ vim.g.maplocalleader = " "
 
 vim.opt.foldmethod = "indent"
 vim.opt.foldcolumn = "1"
-vim.o.foldenable = false
+vim.opt.foldenable = false
+vim.opt.clipboard = "unnamedplus"
+
 -- Snippet taken from
 -- https://github.com/folke/lazy.nvim#-installation
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -110,99 +112,6 @@ local cmpSetup = function()
 			{ name = "luasnip",  group_index = 2 },
 		},
 	}
-end
-
--- Pasza: this is my implementation based on: https://github.com/julienvincent/nvim-paredit-fennel/blob/master/lua/nvim-paredit-fennel/extension.lua
--- form_types are mine, coming from treesitter's :InspectTree
-local createPareditExtension = function(config)
-	local form_types = config.form_types or {}
-	local whitespace_chars = config.whitespace_chars or { " ", "," }
-	local common = require("nvim-paredit.utils.common")
-	local traversal = require("nvim-paredit.utils.traversal")
-	local function find_next_parent_form(current_node)
-		-- FIXME(@pasza): this is to prevent npe in 4j, but it does not return sensible value
-		if not current_node then
-			return nil
-		end
-		if common.included_in_table(form_types, current_node:type()) then
-			return current_node
-		end
-
-		local parent = current_node:parent()
-		if parent then
-			return find_next_parent_form(parent)
-		end
-
-		return current_node
-	end
-
-	local function unwrap_form(node)
-		if common.included_in_table(form_types, node:type()) then
-			return node
-		end
-		local child = node:named_child(0)
-		if child then
-			return unwrap_form(child)
-		end
-	end
-	local function node_is_form(node)
-		if unwrap_form(node) then
-			return true
-		else
-			return false
-		end
-	end
-	local function get_node_root(node)
-		local search_point = node
-		if node_is_form(node) then
-			search_point = node:parent()
-		end
-
-		local root = find_next_parent_form(search_point)
-		return traversal.find_root_element_relative_to(root, node)
-	end
-	local node_is_comment = function(node)
-		return node:type() == "comment"
-	end
-	local get_form_edges = function(node)
-		local node_range = { node:range() }
-
-		local form = unwrap_form(node)
-		local form_range = { form:range() }
-
-		local left_range = { node_range[1], node_range[2] }
-		left_range[3] = form_range[1]
-		left_range[4] = form_range[2] + 1
-
-		local right_range = { form:range() }
-		right_range[1] = right_range[3]
-		right_range[2] = right_range[4] - 1
-
-		local left_text = vim.api.nvim_buf_get_text(0, left_range[1], left_range[2], left_range[3], left_range[4], {})
-		local right_text = vim.api.nvim_buf_get_text(0, right_range[1], right_range[2], right_range[3],
-			right_range[4],
-			{})
-
-		return {
-			left = {
-				text = left_text[1],
-				range = left_range,
-			},
-			right = {
-				text = right_text[1],
-				range = right_range,
-			},
-		}
-	end
-	local M = {
-		whitespace_chars = whitespace_chars,
-		get_node_root = get_node_root,
-		unwrap_form = unwrap_form,
-		node_is_form = node_is_form,
-		node_is_comment = node_is_comment,
-		get_form_edges = get_form_edges,
-	}
-	return M
 end
 
 require("lazy").setup({
@@ -389,31 +298,8 @@ require("lazy").setup({
 		config = function()
 			local paredit = require("nvim-paredit")
 			paredit.setup({
-				filetypes = { "janet", "clojure", "lisp", "scheme" },
+				filetypes = { "janet", "clojure", "lisp", "scheme", "fennel" },
 			})
-			paredit.extension.add_language_extension("janet", createPareditExtension(
-				{
-					form_types = {
-						"par_tup_lit",
-						"sqr_tup_lit",
-						"qq_lit",
-						"struct_lit",
-						"unquote_lit",
-						-- "short_fn_lit",
-						-- "long_str_lit",
-					}
-				}))
-			paredit.extension.add_language_extension("lisp", createPareditExtension({
-				form_types = {
-					"list_lit",
-					"defun",
-				}
-			}))
-			paredit.extension.add_language_extension("scheme", createPareditExtension({
-				form_types = {
-					"list",
-				}
-			}))
 			vim.keymap.set("n", "<Leader>w",
 				function()
 					-- place cursor and set mode to `insert`
@@ -683,8 +569,22 @@ require("lazy").setup({
 	},
 	{
 		"nvim-telescope/telescope.nvim",
-		tag = "0.1.4",
-		dependencies = { "nvim-lua/plenary.nvim" },
+		tag = "0.1.8",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			{
+				"nvim-telescope/telescope-fzf-native.nvim",
+				build = "make"
+			}
+		},
+		config = function()
+			require('telescope').setup {
+				extensions = {
+					fzf = {}
+				}
+			}
+			require('telescope').load_extension('fzf')
+		end
 	},
 	{
 		"nvim-lualine/lualine.nvim",
@@ -823,7 +723,7 @@ require("lazy").setup({
 							},
 							checkOnSave = {
 								enable = true,
-								command = "clippy",
+								command = "cargo clippy",
 							},
 							locationLinks = false,
 						},
@@ -1021,7 +921,7 @@ require('lspconfig').elixirls.setup {
 	-- cmd = { "/home/pasza/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" },
 	on_attach = lsp_on_attach,
 }
-require('lspconfig').tsserver.setup {
+require('lspconfig').ts_ls.setup {
 	on_attach = mk_lsp_on_attach { do_format_on_save = true },
 }
 local null_ls = require("null-ls")
@@ -1081,6 +981,12 @@ lspconfig.emmet_language_server.setup({
 
 lspconfig.zls.setup({
 	on_attach = lsp_on_attach,
+	-- settings = {
+	-- 	zls = {
+	--
+	--
+	-- 	},
+	-- },
 })
 -- pasza: vim.keymap.set("i", "jj", "<Esc>")
 
@@ -1131,7 +1037,18 @@ vim.keymap.set("n", "<leader>f", function()
 end, { desc = "[/] Fuzzily search in current buffer" })
 
 -- pasza: figure out better keybinds, perhaps which key
+vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR")
+vim.keymap.set("n", "<space>x", ":.lua<CR>")
+vim.keymap.set("v", "<space>x", ":lua<CR>")
 vim.keymap.set("n", "<leader>p", builtin.find_files, { desc = "[S]earch [F]iles" })
+vim.keymap.set("n", "<leader>np",
+	function()
+		builtin.find_files {
+			cwd = vim.fn.stdpath("config")
+		}
+	end,
+	{ desc = "[S]earch [F]iles" }
+)
 vim.keymap.set("n", "<M-p>", builtin.find_files, { desc = "[S]earch [F]iles" })
 vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
 vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
