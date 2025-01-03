@@ -18,6 +18,7 @@
 ;; (use-package quelpa-use-package)
 ;; (quelpa-use-package-activate-advice)
 (setq load-prefer-newer t)
+(xterm-mouse-mode 1)
 
 ;;; Vim Bindings
 (use-package evil
@@ -109,7 +110,7 @@
  '(custom-safe-themes
    '("80214de566132bf2c844b9dee3ec0599f65c5a1f2d6ff21a2c8309e6e70f9242" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(paredit slynk sly flycheck compat prescient catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
+   '(janet-ts-mode paredit slynk sly flycheck compat prescient catpuccin-theme catppuccin-theme rust-mode dap-mode lsp-ui lsp-mode go-mode affe orderless vertico company-prescient evil-collection cmake-mode quelpa-use-package modus-themes evil)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -175,6 +176,11 @@
   (lsp-modeline-code-actions-mode)
   ;; (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   (add-to-list 'lsp-file-watch-ignored "\\.vscode\\'"))
+
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "<return>") nil)
+  (define-key company-active-map (kbd "RET") nil)
+  (define-key company-active-map (kbd "C-Y") #'company-complete-selection))
 
 (use-package sly
   :mode ("\\.lisp\\'" . lisp-mode)

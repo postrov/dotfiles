@@ -100,6 +100,7 @@ local cmpSetup = function()
 				-- 	fallback()
 				-- end
 			end,
+			['<CR>'] = cmp.config.disable,
 			['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
 			['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
 			['<C-y>'] = cmp.mapping.confirm({ select = true }),
@@ -281,7 +282,21 @@ require("lazy").setup({
 	-- },
 	{
 		"tpope/vim-fugitive"
-
+	},
+	{
+		"mfussenegger/nvim-lint",
+		config = function()
+			vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+				callback = function()
+					-- try_lint without arguments runs the linters defined in `linters_by_ft`
+					-- for the current filetype
+					require("lint").try_lint()
+					-- You can call `try_lint` with a linter name or a list of names to always
+					-- run specific linters, independent of the `linters_by_ft` configuration
+					-- require("lint").try_lint("cspell")
+				end,
+			})
+		end
 	},
 	{
 		"kylechui/nvim-surround",
@@ -335,7 +350,7 @@ require("lazy").setup({
 				end)
 		end
 	},
-	-- janet syntax for formatter to work
+	-- janet syntax for formatter to work (2025-01-03: still needed)
 	{ "bakpakin/janet.vim" },
 	{
 		"Olical/conjure",
@@ -1037,7 +1052,7 @@ vim.keymap.set("n", "<leader>f", function()
 end, { desc = "[/] Fuzzily search in current buffer" })
 
 -- pasza: figure out better keybinds, perhaps which key
-vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR")
+vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR>")
 vim.keymap.set("n", "<space>x", ":.lua<CR>")
 vim.keymap.set("v", "<space>x", ":lua<CR>")
 vim.keymap.set("n", "<leader>p", builtin.find_files, { desc = "[S]earch [F]iles" })
