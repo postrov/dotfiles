@@ -954,6 +954,7 @@ null_ls.setup({
 
 require('lspconfig').nixd.setup({
 	cmd = { "nixd" },
+	on_attach = lsp_on_attach,
 	settings = {
 		nixd = {
 			nixpkgs = {
