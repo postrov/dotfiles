@@ -244,39 +244,39 @@ require("lazy").setup({
 	-- },
 	--
 	-- janet lsp: it works, but it's quite buggy
-	-- {
-	-- 	"neovim/nvim-lspconfig",
-	-- 	lazy = false,
-	-- 	config = function()
-	-- 		local lspconfig = require("lspconfig")
-	-- 		local configs = require("lspconfig.configs")
-	--
-	-- 		if not configs.janet then
-	-- 			configs.janet = {
-	-- 				default_config = {
-	-- 					cmd = { "janet-lsp" },
-	-- 					filetypes = { "janet", "jdn" },
-	-- 					root_dir = lspconfig.util.root_pattern("project.janet"),
-	-- 					single_file_support = true,
-	-- 					settings = {},
-	-- 				},
-	-- 			}
-	-- 		end
-	--
-	-- 		lspconfig.janet.setup({
-	-- 			capabilities = vim.lsp.protocol.make_client_capabilities(),
-	-- 			on_attach = function(client, bufnr)
-	-- 				lsp_on_attach(client, bufnr)
-	-- 				-- Remove this 👇 if you don't want to be notified
-	-- 				print("starting janet-lsp")
-	-- 				-- Optional keymaps here 👇
-	-- 				vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = 0 })
-	-- 				vim.keymap.set("n", "<leader>k", vim.lsp.buf.hover, { buffer = 0 })
-	-- 				vim.keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
-	-- 			end,
-	-- 		})
-	-- 	end,
-	-- },
+	{
+		"neovim/nvim-lspconfig",
+		lazy = false,
+		config = function()
+			local lspconfig = require("lspconfig")
+			local configs = require("lspconfig.configs")
+
+			if not configs.janet then
+				configs.janet = {
+					default_config = {
+						cmd = { "janet-lsp" },
+						filetypes = { "janet", "jdn" },
+						root_dir = lspconfig.util.root_pattern("project.janet"),
+						single_file_support = true,
+						settings = {},
+					},
+				}
+			end
+
+			lspconfig.janet.setup({
+				capabilities = vim.lsp.protocol.make_client_capabilities(),
+				on_attach = function(client, bufnr)
+					lsp_on_attach(client, bufnr)
+					-- Remove this 👇 if you don't want to be notified
+					-- print("starting janet-lsp")
+					-- Optional keymaps here 👇
+					vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = 0 })
+					vim.keymap.set("n", "<leader>k", vim.lsp.buf.hover, { buffer = 0 })
+					vim.keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
+				end,
+			})
+		end,
+	},
 	-- {
 	-- 	"gpanders/nvim-parinfer"
 	-- },
@@ -303,6 +303,7 @@ require("lazy").setup({
 		version = "*", -- Use for stability; omit to use `main` branch for the latest features
 		event = "VeryLazy",
 		config = function()
+			---@diagnostic disable-next-line: missing-fields
 			require("nvim-surround").setup({
 				-- Configuration here, or leave empty to use defaults
 			})
