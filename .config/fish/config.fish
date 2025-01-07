@@ -5,6 +5,7 @@ set -gx PATH $PATH ~/bin
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 alias lg=lazygit
 alias hx=helix
+alias t=todo.sh
 
 begin
     set --local AUTOJUMP_PATH $HOME/.autojump/share/autojump/autojump.fish
