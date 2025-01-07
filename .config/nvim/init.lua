@@ -375,6 +375,7 @@ require("lazy").setup({
 				end,
 			},
 		},
+		---@diagnostic disable-next-line: unused-local
 		config = function(_, opts)
 			require("conjure.main").main()
 			require("conjure.mapping")["on-filetype"]()
@@ -397,7 +398,8 @@ require("lazy").setup({
 
 		config = function()
 			local harpoon = require("harpoon")
-			harpoon.setup()
+			---@diagnostic disable-next-line: missing-fields
+			harpoon.setup({})
 			-- keymaps
 			vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
 			vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
@@ -490,6 +492,7 @@ require("lazy").setup({
 		},
 		config = function()
 			local tsConfigs = require 'nvim-treesitter.configs'
+			---@diagnostic disable-next-line: missing-fields
 			tsConfigs.setup {
 				textobjects = {
 					select = {
@@ -678,6 +681,7 @@ require("lazy").setup({
 				sign_icons = {},
 			})
 
+			---@diagnostic disable-next-line: unused-local
 			lsp.on_attach(function(client, bufnr)
 				local opts = { buffer = bufnr, remap = false }
 				vim.keymap.set("n", "gd", function()
@@ -759,6 +763,26 @@ require("lazy").setup({
 		dependencies = "mfussenegger/nvim-dap",
 		config = function(_, opts)
 			require("dap-go").setup(opts)
+			local config = {
+				args = function()
+					-- Prompt the user for input
+					local user_input = vim.fn.input("Program args: ")
+
+					-- Split the input on whitespace
+					local result = {}
+					for word in string.gmatch(user_input, "%S+") do
+						table.insert(result, word)
+					end
+
+					return result
+				end,
+				buildFlags = "",
+				name = "Debug Package (Arguments)",
+				program = "${fileDirname}",
+				request = "launch",
+				type = "go"
+			}
+			table.insert(require("dap").configurations["go"], config)
 		end,
 	},
 	{
@@ -785,6 +809,9 @@ require("lazy").setup({
 			vim.keymap.set("n", "<Leader>dt", ":DapToggleBreakpoint<CR>")
 			vim.keymap.set("n", "<Leader>do", ":DapStepOver<CR>")
 			vim.keymap.set("n", "<Leader>di", ":DapStepInto<CR>")
+			vim.keymap.set("n", "<Leader>de", ":DapEval<CR>")
+			vim.keymap.set("v", "<M-k>", "<Cmd>lua require(\"dapui\").eval()<CR>")
+			vim.keymap.set("n", "<M-k>", "<Cmd>lua require(\"dapui\").eval()<CR>")
 			-- vim.keymap.set("n", "<Leader>dus", sidebar_toggle)
 			dap.listeners.after.event_initialized["dapui_config"] = function()
 				dapui.open()
@@ -1022,10 +1049,10 @@ local function bind(op, outer_opts)
 	end
 end
 
-local nmap = bind("n", { noremap = false })
+-- local nmap = bind("n", { noremap = false })
 local nnoremap = bind("n")
-local vnoremap = bind("v")
-local xnoremap = bind("x")
+-- local vnoremap = bind("v")
+-- local xnoremap = bind("x")
 local inoremap = bind("i")
 
 nnoremap("<leader>pv", "<cmd>Ex<CR>")
@@ -1076,6 +1103,7 @@ vim.keymap.set("n", "<leader>hh", function() vim.lsp.inlay_hint.enable(not vim.l
 	{ desc = "Inlay [Hints] Toggle" })
 vim.keymap.set("n", "<leader>sj", builtin.jumplist, { desc = "[S]earch [J]umplist" })
 -- TREESITTER
+---@diagnostic disable-next-line: missing-fields
 require("nvim-treesitter.configs").setup({
 	ensure_installed = { "c", "lua", "vim", "go", "javascript", "typescript", "rust" },
 	highlight = {

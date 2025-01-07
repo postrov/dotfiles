@@ -153,7 +153,7 @@
 	 'lsp-mode-hook
 	 (lambda nil
 	   (define-key evil-normal-state-local-map
-		       (kbd "<leader>gd") 'lsp-find-definition)
+		       (kbd "gd") 'lsp-find-definition)
 	   (define-key evil-normal-state-local-map
 		       (kbd "<leader>lfr") 'lsp-find-references)
 	   (define-key evil-normal-state-local-map
@@ -198,6 +198,8 @@
                         (kbd "<leader>lfr") 'sly-edit-uses)
             (define-key evil-normal-state-local-map
                         (kbd "<leader>gd") 'sly-edit-definition)
+            (define-key evil-normal-state-local-map
+                        (kbd "<leader>hd") 'sly-describe-symbol)
 	    ))
 
 ; (use-package evil-paredit
