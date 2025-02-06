@@ -623,6 +623,32 @@ require("lazy").setup({
 		ft = { "go", "python" },
 	},
 	{
+		"MunifTanjim/prettier.nvim",
+		config = function()
+			local prettier = require("prettier")
+
+			prettier.setup({
+				bin = 'prettierd', -- or `'prettierd'` (v0.23.3+)
+				-- bin = 'prettier', -- or `'prettierd'` (v0.23.3+)
+				filetypes = {
+					"astro",
+					"css",
+					"graphql",
+					"html",
+					"javascript",
+					"javascriptreact",
+					"json",
+					"less",
+					"markdown",
+					"scss",
+					"typescript",
+					"typescriptreact",
+					"yaml",
+				},
+			})
+		end
+	},
+	{
 		"folke/todo-comments.nvim",
 		dependencies = { "nvim-lua/plenary.nvim" },
 		opts = {
@@ -920,6 +946,11 @@ require('lspconfig').clangd.setup {
 	on_attach = lsp_on_attach,
 }
 
+-- astro lsp setup
+require 'lspconfig'.astro.setup {
+	on_attach = lsp_on_attach,
+}
+
 vim.filetype.add({
 	extension = {
 		templ = "templ",
@@ -968,6 +999,8 @@ require('lspconfig').ts_ls.setup {
 	on_attach = mk_lsp_on_attach { do_format_on_save = true },
 }
 local null_ls = require("null-ls")
+-- print("d: ", null_ls.builtins.formatting.prettierd)
+-- print(": ", null_ls.builtins.formatting.prettier)
 null_ls.setup({
 	sources = {
 		null_ls.builtins.formatting.gofumpt,
@@ -976,9 +1009,10 @@ null_ls.setup({
 		-- null_ls.builtins.formatting.stylua,
 		null_ls.builtins.diagnostics.mypy,
 		null_ls.builtins.diagnostics.ruff,
+		-- null_ls.builtins.formatting.prettierd,
+		null_ls.builtins.formatting.prettier,
 	}
 })
-
 
 require('lspconfig').nixd.setup({
 	cmd = { "nixd" },
@@ -994,8 +1028,6 @@ require('lspconfig').nixd.setup({
 		},
 	},
 })
-
-
 
 lspconfig.emmet_language_server.setup({
 	filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "pug", "typescriptreact" },
