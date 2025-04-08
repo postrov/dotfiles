@@ -616,9 +616,21 @@ require("lazy").setup({
 			}
 		},
 		config = function()
+			local custom_pickers = require('telescope_custom_pickers')
 			require('telescope').setup {
 				extensions = {
 					fzf = {}
+				},
+				pickers = {
+					live_grep = {
+						path_display = { 'shorten' },
+						mappings = {
+							i = {
+								['<c-f>'] = custom_pickers.actions.set_extension,
+								['<c-l>'] = custom_pickers.actions.set_folders,
+							},
+						},
+					},
 				}
 			}
 			require('telescope').load_extension('fzf')
@@ -638,7 +650,7 @@ require("lazy").setup({
 	},
 	-- "fatih/vim-go",
 	{
-		"jose-elias-alvarez/null-ls.nvim",
+		"nvimtools/none-ls.nvim",
 		ft = { "go", "python" },
 	},
 	{
