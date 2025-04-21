@@ -57,7 +57,7 @@ local augrup = vim.api.nvim_create_augroup("LspFormatting", {})
 local mk_lsp_on_attach = function(t)
 	setmetatable(t, { __index = { do_format_on_save = true } })
 	return function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
+		if client:supports_method("textDocument/formatting") then
 			vim.api.nvim_clear_autocmds({
 				group = augrup,
 				buffer = bufnr,
@@ -228,40 +228,6 @@ require("lazy").setup({
 		},
 		opts = {}                   -- your configuration
 	},
-	-- {
-	-- 	"epwalsh/obsidian.nvim",
-	-- 	version = "*", -- recommended, use latest release instead of latest commit
-	-- 	lazy = true,
-	-- 	ft = "markdown",
-	-- 	-- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
-	-- 	-- event = {
-	-- 	--   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-	-- 	--   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
-	-- 	--   "BufReadPre path/to/my-vault/**.md",
-	-- 	--   "BufNewFile path/to/my-vault/**.md",
-	-- 	-- },
-	-- 	dependencies = {
-	-- 		-- Required.
-	-- 		"nvim-lua/plenary.nvim",
-	--
-	-- 		-- see below for full list of optional dependencies 👇
-	-- 	},
-	-- 	opts = {
-	-- 		workspaces = {
-	-- 			{
-	-- 				name = "it",
-	-- 				path = "~/GoogleDrive/DriveSyncFiles/IT Knowledge",
-	-- 			},
-	-- 			{
-	-- 				name = "bible",
-	-- 				path = "~/GoogleDrive/DriveSyncFiles/Bible Study PL",
-	-- 			},
-	-- 		},
-	--
-	-- 		-- see below for full list of options 👇
-	-- 	},
-	-- },
-	--
 	-- janet lsp: it works, but it's quite buggy
 	{
 		"neovim/nvim-lspconfig",
@@ -296,9 +262,6 @@ require("lazy").setup({
 			})
 		end,
 	},
-	-- {
-	-- 	"gpanders/nvim-parinfer"
-	-- },
 	{
 		"tpope/vim-fugitive"
 	},
@@ -474,23 +437,6 @@ require("lazy").setup({
 		"catppuccin/nvim",
 		name = "catppuccin"
 	},
-	-- {
-	-- 	"zbirenbaum/copilot.lua",
-	-- 	cmd = "Copilot",
-	-- 	event = "InsertEnter",
-	-- 	config = function()
-	-- 		require("copilot").setup({
-	-- 			suggestion = { enabled = false },
-	-- 			panel = { enabled = false },
-	-- 		})
-	-- 	end,
-	-- },
-	-- {
-	-- 	"zbirenbaum/copilot-cmp",
-	-- 	config = function()
-	-- 		require("copilot_cmp").setup({})
-	-- 	end
-	-- },
 	{ "jinh0/eyeliner.nvim" },
 	{
 		"windwp/nvim-autopairs",
@@ -758,7 +704,9 @@ require("lazy").setup({
 		end,
 	},
 	{
-		"simrat39/rust-tools.nvim",
+		'mrcjkb/rustaceanvim',
+		version = '^6', -- Recommended
+		lazy = false, -- This plugin is already lazy
 		config = function()
 			local tools = {
 				autoSetHints = true,
@@ -787,29 +735,20 @@ require("lazy").setup({
 			local extension_path = codelldb:get_install_path() .. "/extension/"
 			local codelldb_path = extension_path .. "adapter/codelldb"
 			local liblldb_path = extension_path .. "lldb/lib/liblldb.so"
-			require('rust-tools').setup({
-				tools = tools,
-				server = {
-					on_attach = lsp_on_attach,
-					-- capabilities = capabilities,
-					flags = { debounce_text_changes = 150 },
-					settings = {
-						["rust-analyzer"] = {
-							lens = {
-								enable = true,
-							},
-							checkOnSave = {
-								enable = true,
-								command = "cargo clippy",
-							},
-							locationLinks = false,
-						},
+			local cfg = require('rustaceanvim.config')
+			vim.g.rustaceanvim = function()
+				return {
+					tools = tools,
+					server = {
+						on_attach = lsp_on_attach,
+						-- capabilities = capabilities,
+						flags = { debounce_text_changes = 150 },
 					},
-				},
-				dap = {
-					adapter = require("rust-tools.dap").get_codelldb_adapter(codelldb_path, liblldb_path),
+					dap = {
+						adapter = cfg.get_codelldb_adapter(codelldb_path, liblldb_path),
+					}
 				}
-			})
+			end
 			--      require('rust-tools-debug').setup()
 		end
 	},
