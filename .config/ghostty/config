@@ -1,3 +1,4 @@
+font-family = Cascadia Mono PL
 window-decoration=false
 #shell-integration=fish
 
@@ -32,5 +33,5 @@ keybind = ctrl+b>l=goto_split:right
 
 background-opacity = 0.75
 background = #000000
-theme = catppuccin-mocha
-
+theme = Catppuccin Mocha
+# theme = dark:Catppuccin Mocha,light:Catppuccin Latte

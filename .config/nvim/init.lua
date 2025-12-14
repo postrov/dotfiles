@@ -100,7 +100,8 @@ local cmpSetup = function()
 				-- 	fallback()
 				-- end
 			end,
-			['<CR>'] = cmp.config.disable,
+			---@diagnostic disable-next-line: assign-type-mismatch
+			['<CR>'] = cmp.config.disable, -- lsp doesn't like it, but it works
 			['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
 			['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
 			['<C-y>'] = cmp.mapping.confirm({ select = true }),
@@ -622,6 +623,9 @@ require("lazy").setup({
 					"typescriptreact",
 					"yaml",
 				},
+				cli_options = {
+					print_width = 120,
+				},
 			})
 		end
 	},
@@ -651,6 +655,20 @@ require("lazy").setup({
 			-- refer to the configuration section below
 		}
 	},
+	-- {
+	-- 	"folke/flash.nvim",
+	-- 	event = "VeryLazy",
+	-- 	---@type Flash.Config
+	-- 	opts = {},
+	-- 	-- stylua: ignore
+	-- 	keys = {
+	-- 		{ "s",     mode = { "n", "x", "o" }, function() require("flash").jump() end,              desc = "Flash" },
+	-- 		{ "S",     mode = { "n", "x", "o" }, function() require("flash").treesitter() end,        desc = "Flash Treesitter" },
+	-- 		{ "r",     mode = "o",               function() require("flash").remote() end,            desc = "Remote Flash" },
+	-- 		{ "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+	-- 		{ "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
+	-- 	},
+	-- },
 	{
 		"VonHeikemen/lsp-zero.nvim",
 		branch = "v1.x",
@@ -694,14 +712,45 @@ require("lazy").setup({
 
 			lsp.setup()
 
-			vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics,
-				{
-					signs = false,
-					virtual_text = true,
-					underline = false,
-				})
+			-- 1. this is deprecated
+			-- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics,
+			-- 	{
+			-- 		signs = false,
+			-- 		virtual_text = true,
+			-- 		underline = false,
+			-- 	})
+
+			-- 2. this could be used instead to only affect publishDiagnostics handler
+			-- vim.lsp.handlers["textDocument/publishDiagnostics"] = function(_, result, ctx, config)
+			-- 	vim.diagnostic.on_publish_diagnostics(_, result, ctx, {
+			-- 		signs = false,
+			-- 		virtual_text = true,
+			-- 		underline = false,
+			-- 	})
+			-- end
+
+			-- 3. for now using just this
+			vim.diagnostic.config({
+				signs = false,
+				virtual_text = true,
+				underline = false,
+			})
 			cmpSetup()
 		end,
+	},
+	{
+		"L3MON4D3/LuaSnip",
+		config = function()
+			local ls = require("luasnip")
+			vim.keymap.set({ "i", "s" }, "<C-L>", function() ls.jump(1) end, { silent = true })
+			vim.keymap.set({ "i", "s" }, "<C-J>", function() ls.jump(-1) end, { silent = true })
+
+			vim.keymap.set({ "i", "s" }, "<C-E>", function()
+				if ls.choice_active() then
+					ls.change_choice(1)
+				end
+			end, { silent = true })
+		end
 	},
 	{
 		'mrcjkb/rustaceanvim',
@@ -886,7 +935,7 @@ lspconfig.gopls.setup {
 			analyses = {
 				unusedparams = true, -- warn about unused params (doesn't seem to work)
 			},
-			staticcheck = true,
+			staticcheck = false,
 			hints = {
 				assignVariableTypes = true,
 				compositeLiteralFields = true,
@@ -978,7 +1027,7 @@ null_ls.setup({
 		-- null_ls.builtins.formatting.golines,
 		-- null_ls.builtins.formatting.stylua,
 		null_ls.builtins.diagnostics.mypy,
-		null_ls.builtins.diagnostics.ruff,
+		-- null_ls.builtins.diagnostics.ruff,
 		-- null_ls.builtins.formatting.prettierd,
 		null_ls.builtins.formatting.prettier,
 	}
@@ -1035,6 +1084,15 @@ lspconfig.zls.setup({
 	-- },
 })
 -- pasza: vim.keymap.set("i", "jj", "<Esc>")
+
+lspconfig["tinymist"].setup({
+	on_attach = lsp_on_attach,
+	settings = {
+		formatterMode = "typstyle",
+		exportPdf = "onType",
+		semanticTokens = "disable"
+	}
+})
 
 
 -- vim.keymap.set("n", "<M-b>", ":Ex<CR>")
@@ -1101,6 +1159,7 @@ vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch curren
 vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>ss", builtin.lsp_dynamic_workspace_symbols, { desc = "[S]earch [S]ymbols" })
+vim.keymap.set("n", "<leader>ds", builtin.lsp_document_symbols, { desc = "[S]earch [S]ymbols" })
 vim.keymap.set("n", "<leader>hh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
 	{ desc = "Inlay [Hints] Toggle" })
 vim.keymap.set("n", "<leader>sj", builtin.jumplist, { desc = "[S]earch [J]umplist" })
