@@ -53,7 +53,6 @@ if vim.fn.has("termguicolors") == 1 then
 end
 
 local lsp_helpers = require("plugins.lsp")
-local mk_lsp_on_attach = lsp_helpers.mk_lsp_on_attach
 local lsp_on_attach = lsp_helpers.lsp_on_attach
 
 require("lazy").setup({
@@ -111,7 +110,6 @@ require("lazy").setup({
 			"saghen/blink.compat",
 		},
 		---@module "blink.cmp"
-		---@type blink.cmp.Config
 		opts = {
 			snippets = { preset = "luasnip" },
 			keymap = {
