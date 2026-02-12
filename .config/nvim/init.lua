@@ -85,7 +85,6 @@ local mk_lsp_on_attach = function(t)
 	end
 end
 local lsp_on_attach = mk_lsp_on_attach { do_format_on_save = true }
--- local lsp_capabilities = ..
 local cmpSetup = function()
 	local cmp = require("cmp")
 	local cmp_select = { behavior = cmp.SelectBehavior.Select }
@@ -218,7 +217,6 @@ require("lazy").setup({
 		"nvim-java/nvim-java",
 		config = false,
 	},
-	-- uses deprecated nvim-lspconfig API
 	-- {
 	-- 	"luckasRanarison/tailwind-tools.nvim",
 	-- 	name = "tailwind-tools",
@@ -652,7 +650,7 @@ require("lazy").setup({
 				capabilities = require("cmp_nvim_lsp").default_capabilities(),
 			})
 
-			-- mason-lspconfig with handlers
+			-- mason-lspconfig
 			require("mason-lspconfig").setup({
 				ensure_installed = {},
 				automatic_enable = false,
@@ -910,19 +908,6 @@ vim.lsp.config('templ', {
 		debounce_text_changes = 150,
 	},
 })
--- cmp_nvim_lsp is no longer here
--- local c = vim.lsp.protocol.make_client_capabilities()
--- c.textDocument.completion.completionItem.snippetSupport = true
--- c.textDocument.completion.completionItem.resolveSupport = {
--- 	properties = {
--- 		'documentation',
--- 		'detail',
--- 		'additionalTextEdits',
--- 	},
--- }
--- local ocaml_capabilities = require("cmp_nvim_lsp").default_capabilities(c)
-
-
 vim.lsp.config('ocamllsp', {
 	on_attach = function(client, buffnr)
 		lsp_on_attach(client, buffnr)
