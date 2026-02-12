@@ -218,38 +218,36 @@ require("lazy").setup({
 		"nvim-java/nvim-java",
 		config = false,
 	},
-	{
-		"luckasRanarison/tailwind-tools.nvim",
-		name = "tailwind-tools",
-		build = ":UpdateRemotePlugins",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"nvim-telescope/telescope.nvim", -- optional
-			"neovim/nvim-lspconfig", -- optional
-		},
-		opts = {}                   -- your configuration
-	},
+	-- uses deprecated nvim-lspconfig API
+	-- {
+	-- 	"luckasRanarison/tailwind-tools.nvim",
+	-- 	name = "tailwind-tools",
+	-- 	build = ":UpdateRemotePlugins",
+	-- 	dependencies = {
+	-- 		"nvim-treesitter/nvim-treesitter",
+	-- 		"nvim-telescope/telescope.nvim", -- optional
+	-- 		-- "neovim/nvim-lspconfig", -- optional
+	-- 	},
+	-- 	opts = {} -- your configuration
+	-- },
 	-- janet lsp: it works, but it's quite buggy
 	{
 		"neovim/nvim-lspconfig",
 		lazy = false,
 		config = function()
-			local lspconfig = require("lspconfig")
-			local configs = require("lspconfig.configs")
-
-			if not configs.janet then
-				configs.janet = {
+			if not vim.lsp.config['janet'] then
+				vim.lsp.config['janet'] = {
 					default_config = {
 						cmd = { "janet-lsp" },
 						filetypes = { "janet", "jdn" },
-						root_dir = lspconfig.util.root_pattern("project.janet"),
+						root_dir = vim.fs.dirname(vim.fs.find({ "project.janet" }, { upward = true })[1]),
 						single_file_support = true,
 						settings = {},
 					},
 				}
 			end
 
-			lspconfig.janet.setup({
+			vim.lsp.config('janet', {
 				capabilities = vim.lsp.protocol.make_client_capabilities(),
 				on_attach = function(client, bufnr)
 					lsp_on_attach(client, bufnr)
@@ -669,72 +667,52 @@ require("lazy").setup({
 	-- 		{ "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
 	-- 	},
 	-- },
+	-- {
 	{
-		"VonHeikemen/lsp-zero.nvim",
-		branch = "v1.x",
+		"williamboman/mason-lspconfig.nvim",
 		dependencies = {
-			{ "neovim/nvim-lspconfig" },                  -- Required
-			{ "folke/neodev.nvim",                config = true }, -- Optional
-			{ "williamboman/mason.nvim" },                -- Optional
-			{ "williamboman/mason-lspconfig.nvim" },      -- Optional
-			{ "hrsh7th/nvim-cmp" },                       -- Required
-			{ "hrsh7th/cmp-nvim-lsp" },                   -- Required
-			{ "hrsh7th/cmp-buffer" },                     -- Optional
-			{ "hrsh7th/cmp-path" },                       -- Optional
-			{ "saadparwaiz1/cmp_luasnip" },               -- Optional
-			{ "hrsh7th/cmp-nvim-lua" },                   -- Optional
-			{ "L3MON4D3/LuaSnip" },                       -- Required
-			{ "rafamadriz/friendly-snippets" },           -- Optional
+			"neovim/nvim-lspconfig",
+			"williamboman/mason.nvim",
+			"folke/neodev.nvim",
+			"hrsh7th/cmp-nvim-lsp",
+			"hrsh7th/nvim-cmp",
+			-- your cmp plugins...
 		},
 		config = function()
-			local lsp = require("lsp-zero")
-			lsp.preset("recommended")
+			-- Mason setup
+			require("mason").setup()
 
-			lsp.ensure_installed({
-				--"tsserver",
-				-- "gopls",
-				--"eslint",
-				--"rust_analyzer",
-				--"pyright",
+			-- Global capabilities FIRST
+			vim.lsp.config("*", {
+				capabilities = require("cmp_nvim_lsp").default_capabilities(),
 			})
 
-			lsp.set_preferences({
-				sign_icons = {},
+			-- mason-lspconfig with handlers
+			require("mason-lspconfig").setup({
+				ensure_installed = {},
+				handlers = {
+					function(server_name)
+						require("lspconfig")[server_name].setup({})
+					end,
+				},
 			})
 
-			---@diagnostic disable-next-line: unused-local
-			lsp.on_attach(function(client, bufnr)
-				local opts = { buffer = bufnr, remap = false }
-				vim.keymap.set("n", "gd", function()
-					vim.lsp.buf.definition()
-				end, opts)
-			end)
-
-			lsp.setup()
-
-			-- 1. this is deprecated
-			-- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics,
-			-- 	{
-			-- 		signs = false,
-			-- 		virtual_text = true,
-			-- 		underline = false,
-			-- 	})
-
-			-- 2. this could be used instead to only affect publishDiagnostics handler
-			-- vim.lsp.handlers["textDocument/publishDiagnostics"] = function(_, result, ctx, config)
-			-- 	vim.diagnostic.on_publish_diagnostics(_, result, ctx, {
-			-- 		signs = false,
-			-- 		virtual_text = true,
-			-- 		underline = false,
-			-- 	})
-			-- end
-
-			-- 3. for now using just this
+			-- Global diagnostics (your existing code)
 			vim.diagnostic.config({
 				signs = false,
 				virtual_text = true,
 				underline = false,
 			})
+
+			-- LSP keymaps (your on_attach replacement)
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(ev)
+					local opts = { buffer = ev.buf }
+					vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+				end,
+			})
+
+			-- Your cmp setup
 			cmpSetup()
 		end,
 	},
@@ -756,6 +734,7 @@ require("lazy").setup({
 		'mrcjkb/rustaceanvim',
 		version = '^6', -- Recommended
 		lazy = false, -- This plugin is already lazy
+		dependencies = { "williamboman/mason.nvim" },
 		config = function()
 			local tools = {
 				autoSetHints = true,
@@ -779,9 +758,7 @@ require("lazy").setup({
 				end
 			}
 			require("mason").setup()
-			local registry = require("mason-registry")
-			local codelldb = registry.get_package("codelldb")
-			local extension_path = codelldb:get_install_path() .. "/extension/"
+			local extension_path = vim.fn.expand("$MASON/packages/codelldb/extension/")
 			local codelldb_path = extension_path .. "adapter/codelldb"
 			local liblldb_path = extension_path .. "lldb/lib/liblldb.so"
 			local cfg = require('rustaceanvim.config')
@@ -892,8 +869,7 @@ require("lazy").setup({
 })
 
 -- lua lsp setup
-local lspconfig = require('lspconfig')
-lspconfig.lua_ls.setup {
+vim.lsp.config('lua_ls', {
 	on_attach = lsp_on_attach,
 	settings = {
 		Lua = {
@@ -909,11 +885,10 @@ lspconfig.lua_ls.setup {
 			},
 		}
 	}
-}
+})
 
 -- go lsp setup
-local lsp_util = require("lspconfig/util")
-lspconfig.gopls.setup {
+vim.lsp.config('gopls', {
 	on_attach = function(client, buffnr)
 		lsp_on_attach(client, buffnr)
 		local dap_go = require("dap-go")
@@ -927,7 +902,7 @@ lspconfig.gopls.setup {
 	-- capabilities = capabilities,
 	cmd = { "gopls" },
 	filetypes = { "go", "gomod", "gowork", "gotmpl" },
-	root_dir = lsp_util.root_pattern("go.work", "go.mod", ".git"),
+	root_dir = vim.fs.dirname(vim.fs.find({ "go.work", "go.mod", ".git" }, { upward = true })[1]),
 	settings = {
 		gopls = {
 			completeUnimported = true, -- auto import modules
@@ -947,51 +922,56 @@ lspconfig.gopls.setup {
 			},
 		}
 	}
-}
+})
+vim.lsp.enable('gopls')
 -- python lsp setup
-lspconfig.pyright.setup({
+vim.lsp.config('pyright', {
 	on_attach = lsp_on_attach,
 	-- capabilities = capabilities,
 })
 
 -- java lsp setup
-lspconfig.jdtls.setup({
+vim.lsp.config('jdtls', {
 	on_attach = lsp_on_attach,
 })
 
 -- c lsp setup
-require('lspconfig').clangd.setup {
+vim.lsp.config('clangd', {
 	filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto", "hpp" },
 	on_attach = lsp_on_attach,
-}
+})
 
 -- astro lsp setup
-require 'lspconfig'.astro.setup {
+vim.lsp.config('astro', {
 	on_attach = lsp_on_attach,
-}
+})
 
 vim.filetype.add({
 	extension = {
 		templ = "templ",
 	},
 })
-lspconfig.templ.setup {
+
+vim.lsp.config('templ', {
 	on_attach = lsp_on_attach,
 	flags = {
 		debounce_text_changes = 150,
 	},
-}
-local c = vim.lsp.protocol.make_client_capabilities()
-c.textDocument.completion.completionItem.snippetSupport = true
-c.textDocument.completion.completionItem.resolveSupport = {
-	properties = {
-		'documentation',
-		'detail',
-		'additionalTextEdits',
-	},
-}
-local ocaml_capabilities = require("cmp_nvim_lsp").default_capabilities(c)
-lspconfig.ocamllsp.setup {
+})
+-- cmp_nvim_lsp is no longer here
+-- local c = vim.lsp.protocol.make_client_capabilities()
+-- c.textDocument.completion.completionItem.snippetSupport = true
+-- c.textDocument.completion.completionItem.resolveSupport = {
+-- 	properties = {
+-- 		'documentation',
+-- 		'detail',
+-- 		'additionalTextEdits',
+-- 	},
+-- }
+-- local ocaml_capabilities = require("cmp_nvim_lsp").default_capabilities(c)
+
+
+vim.lsp.config('ocamllsp', {
 	on_attach = function(client, buffnr)
 		lsp_on_attach(client, buffnr)
 		if client.server_capabilities.codeLensProvider then
@@ -1008,15 +988,15 @@ lspconfig.ocamllsp.setup {
 			})
 		end
 	end,
-	capabilities = ocaml_capabilities,
-}
-require('lspconfig').elixirls.setup {
+	-- capabilities = ocaml_capabilities,
+})
+vim.lsp.config('elixirls', {
 	-- cmd = { "/home/pasza/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" },
 	on_attach = lsp_on_attach,
-}
-require('lspconfig').ts_ls.setup {
+})
+vim.lsp.config('ts_ls', {
 	on_attach = mk_lsp_on_attach { do_format_on_save = true },
-}
+})
 local null_ls = require("null-ls")
 -- print("d: ", null_ls.builtins.formatting.prettierd)
 -- print(": ", null_ls.builtins.formatting.prettier)
@@ -1033,7 +1013,7 @@ null_ls.setup({
 	}
 })
 
-require('lspconfig').nixd.setup({
+vim.lsp.config('nixd', {
 	cmd = { "nixd" },
 	on_attach = lsp_on_attach,
 	settings = {
@@ -1048,7 +1028,7 @@ require('lspconfig').nixd.setup({
 	},
 })
 
-lspconfig.emmet_language_server.setup({
+vim.lsp.config('emmet_language_server', {
 	filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "pug", "typescriptreact" },
 	-- Read more about this options in the [vscode docs](https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration).
 	-- **Note:** only the options listed in the table are supported.
@@ -1074,7 +1054,7 @@ lspconfig.emmet_language_server.setup({
 	},
 })
 
-lspconfig.zls.setup({
+vim.lsp.config('zls', {
 	on_attach = lsp_on_attach,
 	-- settings = {
 	-- 	zls = {
@@ -1085,7 +1065,7 @@ lspconfig.zls.setup({
 })
 -- pasza: vim.keymap.set("i", "jj", "<Esc>")
 
-lspconfig["tinymist"].setup({
+vim.lsp.config('tinymist', {
 	on_attach = lsp_on_attach,
 	settings = {
 		formatterMode = "typstyle",
