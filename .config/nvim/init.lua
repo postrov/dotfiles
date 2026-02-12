@@ -235,19 +235,13 @@ require("lazy").setup({
 		"neovim/nvim-lspconfig",
 		lazy = false,
 		config = function()
-			if not vim.lsp.config['janet'] then
-				vim.lsp.config['janet'] = {
-					default_config = {
-						cmd = { "janet-lsp" },
-						filetypes = { "janet", "jdn" },
-						root_dir = vim.fs.dirname(vim.fs.find({ "project.janet" }, { upward = true })[1]),
-						single_file_support = true,
-						settings = {},
-					},
-				}
-			end
+			local project_file = vim.fs.find({ "project.janet" }, { upward = true })[1]
+			local root_dir = project_file and vim.fs.dirname(project_file) or vim.loop.cwd()
 
 			vim.lsp.config('janet', {
+				cmd = { "janet-lsp" },
+				filetypes = { "janet", "jdn" },
+				root_dir = root_dir,
 				capabilities = vim.lsp.protocol.make_client_capabilities(),
 				on_attach = function(client, bufnr)
 					lsp_on_attach(client, bufnr)
@@ -583,7 +577,7 @@ require("lazy").setup({
 	},
 	{
 		"nvim-lualine/lualine.nvim",
-		dependencies = { "kyazdani42/nvim-web-devicons", opt = true },
+		dependencies = { "nvim-tree/nvim-web-devicons", opt = true },
 		opts = {
 			options = {
 				icons_enabled = false,
@@ -673,7 +667,7 @@ require("lazy").setup({
 		dependencies = {
 			"neovim/nvim-lspconfig",
 			"williamboman/mason.nvim",
-			"folke/neodev.nvim",
+			"folke/lazydev.nvim",
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/nvim-cmp",
 			-- your cmp plugins...
@@ -690,11 +684,7 @@ require("lazy").setup({
 			-- mason-lspconfig with handlers
 			require("mason-lspconfig").setup({
 				ensure_installed = {},
-				handlers = {
-					function(server_name)
-						require("lspconfig")[server_name].setup({})
-					end,
-				},
+				automatic_enable = true,
 			})
 
 			-- Global diagnostics (your existing code)
@@ -923,7 +913,6 @@ vim.lsp.config('gopls', {
 		}
 	}
 })
-vim.lsp.enable('gopls')
 -- python lsp setup
 vim.lsp.config('pyright', {
 	on_attach = lsp_on_attach,
@@ -1073,6 +1062,22 @@ vim.lsp.config('tinymist', {
 		semanticTokens = "disable"
 	}
 })
+
+vim.lsp.enable('janet')
+vim.lsp.enable('lua_ls')
+vim.lsp.enable('gopls')
+vim.lsp.enable('pyright')
+vim.lsp.enable('jdtls')
+vim.lsp.enable('clangd')
+vim.lsp.enable('astro')
+vim.lsp.enable('templ')
+vim.lsp.enable('ocamllsp')
+vim.lsp.enable('elixirls')
+vim.lsp.enable('ts_ls')
+vim.lsp.enable('nixd')
+vim.lsp.enable('emmet_language_server')
+vim.lsp.enable('zls')
+vim.lsp.enable('tinymist')
 
 
 -- vim.keymap.set("n", "<M-b>", ":Ex<CR>")
