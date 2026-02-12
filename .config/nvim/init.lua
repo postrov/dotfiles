@@ -593,35 +593,6 @@ require("lazy").setup({
 		ft = { "go", "python" },
 	},
 	{
-		"MunifTanjim/prettier.nvim",
-		config = function()
-			local prettier = require("prettier")
-
-			prettier.setup({
-				bin = 'prettierd', -- or `'prettierd'` (v0.23.3+)
-				-- bin = 'prettier', -- or `'prettierd'` (v0.23.3+)
-				filetypes = {
-					"astro",
-					"css",
-					"graphql",
-					"html",
-					"javascript",
-					"javascriptreact",
-					"json",
-					"less",
-					"markdown",
-					"scss",
-					"typescript",
-					"typescriptreact",
-					"yaml",
-				},
-				cli_options = {
-					print_width = 120,
-				},
-			})
-		end
-	},
-	{
 		"folke/todo-comments.nvim",
 		dependencies = { "nvim-lua/plenary.nvim" },
 		opts = {
@@ -684,7 +655,7 @@ require("lazy").setup({
 			-- mason-lspconfig with handlers
 			require("mason-lspconfig").setup({
 				ensure_installed = {},
-				automatic_enable = true,
+				automatic_enable = false,
 			})
 
 			-- Global diagnostics (your existing code)
@@ -692,14 +663,6 @@ require("lazy").setup({
 				signs = false,
 				virtual_text = true,
 				underline = false,
-			})
-
-			-- LSP keymaps (your on_attach replacement)
-			vim.api.nvim_create_autocmd("LspAttach", {
-				callback = function(ev)
-					local opts = { buffer = ev.buf }
-					vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-				end,
 			})
 
 			-- Your cmp setup
