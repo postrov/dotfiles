@@ -52,70 +52,12 @@ if vim.fn.has("termguicolors") == 1 then
 	vim.o.termguicolors = true
 end
 
--- format on save
-local augrup = vim.api.nvim_create_augroup("LspFormatting", {})
-local mk_lsp_on_attach = function(t)
-	setmetatable(t, { __index = { do_format_on_save = true } })
-	return function(client, bufnr)
-		if client:supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({
-				group = augrup,
-				buffer = bufnr,
-			})
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = augrup,
-				buffer = bufnr,
-				callback = function()
-					vim.lsp.buf.format({ bufnr = bufnr })
-				end
-			})
-		end
-		-- vim.keymap.set("n", "<Leader>k", "<cmd> lua rt.hover_actions.hover_actions()<CR>", { buffer = bufnr })
-		-- vim.keymap.set("n", "<Leader>a", "<cmd> lua rt.code_action_group.code_action_group()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>k", "<cmd> lua vim.lsp.buf.code_action()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>lj", "<cmd> lua vim.diagnostic.goto_next()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>lk", "<cmd> lua vim.diagnostic.goto_prev()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>lc", "<cmd> lua vim.lsp.codelens.run()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>gd", "<cmd> lua vim.lsp.buf.definition()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>lrn", "<cmd> lua vim.lsp.buf.rename()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>lfr", "<cmd> lua vim.lsp.buf.references()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>hs", "<cmd> lua vim.lsp.buf.signature_help()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>ld", "<cmd> lua vim.diagnostic.open_float()<CR>", { buffer = bufnr })
-		vim.keymap.set("n", "<Leader>hd", "<cmd> lua vim.lsp.buf.hover()<CR>", { buffer = bufnr })
-	end
-end
-local lsp_on_attach = mk_lsp_on_attach { do_format_on_save = true }
-local cmpSetup = function()
-	local cmp = require("cmp")
-	local cmp_select = { behavior = cmp.SelectBehavior.Select }
-	cmp.setup {
-		mapping = {
-			['<Tab>'] = function(fallback)
-				-- this actully needs to be here to prevent default tab behavior
-				fallback()
-				-- if cmp.visible() then
-				-- 	cmp.select_next_item()
-				-- else
-				-- 	fallback()
-				-- end
-			end,
-			---@diagnostic disable-next-line: assign-type-mismatch
-			['<CR>'] = cmp.config.disable, -- lsp doesn't like it, but it works
-			['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-			['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-			['<C-y>'] = cmp.mapping.confirm({ select = true }),
-			["<C-Space>"] = cmp.mapping.complete(),
-		},
-		sources = {
-			{ name = "copilot",  group_index = 2 },
-			{ name = "nvim_lsp", group_index = 2 },
-			{ name = "path",     group_index = 2 },
-			{ name = "luasnip",  group_index = 2 },
-		},
-	}
-end
+local lsp_helpers = require("plugins.lsp")
+local mk_lsp_on_attach = lsp_helpers.mk_lsp_on_attach
+local lsp_on_attach = lsp_helpers.lsp_on_attach
 
 require("lazy").setup({
+	-- Productivity and AI
 	-- {
 	-- 	"folke/which-key.nvim",
 	-- 	event = "VeryLazy",
@@ -153,60 +95,43 @@ require("lazy").setup({
 			-- })
 		end,
 	},
+	-- Completion
 	{
-		"yetone/avante.nvim",
-		enabled = (function()
-			local anthropicKey = os.getenv("ANTHROPIC_API_KEY")
-			return anthropicKey ~= nil and anthropicKey ~= ""
-		end)(),
-		event = "VeryLazy",
-		lazy = false,
-		version = false, -- set this if you want to always pull the latest change
-		opts = {
-			-- add any opts here
-			provider = "claude",
-			hints = {
-				enabled = true,
-			},
-		},
-		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-		build = "make",
-		-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
+		"saghen/blink.compat",
+		version = "2.*",
+		lazy = true,
+		opts = {},
+	},
+	{
+		"saghen/blink.cmp",
+		version = "1.*",
 		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"stevearc/dressing.nvim",
-			"nvim-lua/plenary.nvim",
-			"MunifTanjim/nui.nvim",
-			--- The below dependencies are optional,
-			"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-			"zbirenbaum/copilot.lua", -- for providers='copilot'
-			{
-				-- support for image pasting
-				"HakonHarnes/img-clip.nvim",
-				event = "VeryLazy",
-				opts = {
-					-- recommended settings
-					default = {
-						embed_image_as_base64 = false,
-						prompt_for_file_name = false,
-						drag_and_drop = {
-							insert_mode = true,
-						},
-						-- required for Windows users
-						use_absolute_path = true,
+			"L3MON4D3/LuaSnip",
+			"PaterJason/cmp-conjure",
+			"saghen/blink.compat",
+		},
+		---@module "blink.cmp"
+		---@type blink.cmp.Config
+		opts = {
+			snippets = { preset = "luasnip" },
+			keymap = {
+				preset = "default",
+				["<CR>"] = { "fallback" },
+				["<Tab>"] = { "fallback" },
+				["<S-Tab>"] = { "fallback" },
+			},
+			sources = {
+				default = { "lsp", "path", "snippets", "buffer", "conjure" },
+				providers = {
+					conjure = {
+						name = "conjure",
+						module = "blink.compat.source",
 					},
 				},
 			},
-			{
-				-- Make sure to set this up properly if you have lazy=true
-				'MeanderingProgrammer/render-markdown.nvim',
-				opts = {
-					file_types = { "markdown", "Avante" },
-				},
-				ft = { "markdown", "Avante" },
-			},
 		},
 	},
+	-- Navigation and files
 	{
 		'stevearc/oil.nvim',
 		opts = {},
@@ -228,7 +153,6 @@ require("lazy").setup({
 	-- 	},
 	-- 	opts = {} -- your configuration
 	-- },
-	-- janet lsp: it works, but it's quite buggy
 	{
 		"neovim/nvim-lspconfig",
 		lazy = false,
@@ -256,6 +180,7 @@ require("lazy").setup({
 	{
 		"tpope/vim-fugitive"
 	},
+	-- Editing
 	{
 		"mfussenegger/nvim-lint",
 		config = function()
@@ -329,25 +254,6 @@ require("lazy").setup({
 	{
 		"Olical/conjure",
 		ft = { "clojure", "fennel", "janet", "lisp", "scheme" }, -- etc
-		-- [Optional] cmp-conjure for cmp
-		dependencies = {
-			{
-				"PaterJason/cmp-conjure",
-				config = function()
-					local cmp = require("cmp")
-					local config = cmp.get_config()
-					table.insert(config.sources, {
-						name = "buffer",
-						option = {
-							sources = {
-								{ name = "conjure" },
-							},
-						},
-					})
-					cmp.setup(config)
-				end,
-			},
-		},
 		---@diagnostic disable-next-line: unused-local
 		config = function(_, opts)
 			require("conjure.main").main()
@@ -630,16 +536,14 @@ require("lazy").setup({
 	-- 		{ "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
 	-- 	},
 	-- },
-	-- {
+	-- LSP and tooling
 	{
 		"williamboman/mason-lspconfig.nvim",
 		dependencies = {
 			"neovim/nvim-lspconfig",
 			"williamboman/mason.nvim",
 			"folke/lazydev.nvim",
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/nvim-cmp",
-			-- your cmp plugins...
+			"saghen/blink.cmp",
 		},
 		config = function()
 			-- Mason setup
@@ -647,7 +551,7 @@ require("lazy").setup({
 
 			-- Global capabilities FIRST
 			vim.lsp.config("*", {
-				capabilities = require("cmp_nvim_lsp").default_capabilities(),
+				capabilities = require("blink.cmp").get_lsp_capabilities(),
 			})
 
 			-- mason-lspconfig
@@ -662,9 +566,6 @@ require("lazy").setup({
 				virtual_text = true,
 				underline = false,
 			})
-
-			-- Your cmp setup
-			cmpSetup()
 		end,
 	},
 	{
@@ -729,6 +630,7 @@ require("lazy").setup({
 			--      require('rust-tools-debug').setup()
 		end
 	},
+	-- Debugging
 	"mfussenegger/nvim-dap",
 	{
 		"leoluz/nvim-dap-go",
@@ -819,214 +721,7 @@ require("lazy").setup({
 	"CreaturePhil/vim-handmade-hero",
 })
 
--- lua lsp setup
-vim.lsp.config('lua_ls', {
-	on_attach = lsp_on_attach,
-	settings = {
-		Lua = {
-			workspace = {
-				checkThirdParty = false,
-			},
-			format = {
-				enable = true,
-				defaultConfig = {
-					indent_style = "space", -- does not seem to work
-					indent_size = "2",
-				},
-			},
-		}
-	}
-})
-
--- go lsp setup
-vim.lsp.config('gopls', {
-	on_attach = function(client, buffnr)
-		lsp_on_attach(client, buffnr)
-		local dap_go = require("dap-go")
-		vim.keymap.set("n", "<Leader>dgt", function()
-			dap_go.debug_test()
-		end)
-		vim.keymap.set("n", "<Leader>dlt", function()
-			dap_go.debug_last_test()
-		end)
-	end,
-	-- capabilities = capabilities,
-	cmd = { "gopls" },
-	filetypes = { "go", "gomod", "gowork", "gotmpl" },
-	root_dir = vim.fs.dirname(vim.fs.find({ "go.work", "go.mod", ".git" }, { upward = true })[1]),
-	settings = {
-		gopls = {
-			completeUnimported = true, -- auto import modules
-			usePlaceholders = true, -- suggest function params (doesn't seem to work)
-			analyses = {
-				unusedparams = true, -- warn about unused params (doesn't seem to work)
-			},
-			staticcheck = false,
-			hints = {
-				assignVariableTypes = true,
-				compositeLiteralFields = true,
-				compositeLiteralTypes = true,
-				constantValues = true,
-				functionTypeParameters = true,
-				parameterNames = true,
-				rangeVariableTypes = true,
-			},
-		}
-	}
-})
--- python lsp setup
-vim.lsp.config('pyright', {
-	on_attach = lsp_on_attach,
-	-- capabilities = capabilities,
-})
-
--- java lsp setup
-vim.lsp.config('jdtls', {
-	on_attach = lsp_on_attach,
-})
-
--- c lsp setup
-vim.lsp.config('clangd', {
-	filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto", "hpp" },
-	on_attach = lsp_on_attach,
-})
-
--- astro lsp setup
-vim.lsp.config('astro', {
-	on_attach = lsp_on_attach,
-})
-
-vim.filetype.add({
-	extension = {
-		templ = "templ",
-	},
-})
-
-vim.lsp.config('templ', {
-	on_attach = lsp_on_attach,
-	flags = {
-		debounce_text_changes = 150,
-	},
-})
-vim.lsp.config('ocamllsp', {
-	on_attach = function(client, buffnr)
-		lsp_on_attach(client, buffnr)
-		if client.server_capabilities.codeLensProvider then
-			local codelens = vim.api.nvim_create_augroup(
-				'LSPCodeLens',
-				{ clear = true }
-			)
-			vim.api.nvim_create_autocmd({ 'BufEnter', 'InsertLeave', 'CursorHold' }, {
-				group = codelens,
-				callback = function()
-					vim.lsp.codelens.refresh()
-				end,
-				buffer = buffnr,
-			})
-		end
-	end,
-	-- capabilities = ocaml_capabilities,
-})
-vim.lsp.config('elixirls', {
-	-- cmd = { "/home/pasza/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" },
-	on_attach = lsp_on_attach,
-})
-vim.lsp.config('ts_ls', {
-	on_attach = mk_lsp_on_attach { do_format_on_save = true },
-})
-local null_ls = require("null-ls")
--- print("d: ", null_ls.builtins.formatting.prettierd)
--- print(": ", null_ls.builtins.formatting.prettier)
-null_ls.setup({
-	sources = {
-		null_ls.builtins.formatting.gofumpt,
-		null_ls.builtins.formatting.goimports_reviser,
-		-- null_ls.builtins.formatting.golines,
-		-- null_ls.builtins.formatting.stylua,
-		null_ls.builtins.diagnostics.mypy,
-		-- null_ls.builtins.diagnostics.ruff,
-		-- null_ls.builtins.formatting.prettierd,
-		null_ls.builtins.formatting.prettier,
-	}
-})
-
-vim.lsp.config('nixd', {
-	cmd = { "nixd" },
-	on_attach = lsp_on_attach,
-	settings = {
-		nixd = {
-			nixpkgs = {
-				expr = "import <nixpkgs> { }",
-			},
-			formatting = {
-				command = { "alejandra" },
-			},
-		},
-	},
-})
-
-vim.lsp.config('emmet_language_server', {
-	filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "pug", "typescriptreact" },
-	-- Read more about this options in the [vscode docs](https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration).
-	-- **Note:** only the options listed in the table are supported.
-	init_options = {
-		---@type table<string, string>
-		includeLanguages = {},
-		--- @type string[]
-		excludeLanguages = {},
-		--- @type string[]
-		extensionsPath = {},
-		--- @type table<string, any> [Emmet Docs](https://docs.emmet.io/customization/preferences/)
-		preferences = {},
-		--- @type boolean Defaults to `true`
-		showAbbreviationSuggestions = true,
-		--- @type "always" | "never" Defaults to `"always"`
-		showExpandedAbbreviation = "always",
-		--- @type boolean Defaults to `false`
-		showSuggestionsAsSnippets = false,
-		--- @type table<string, any> [Emmet Docs](https://docs.emmet.io/customization/syntax-profiles/)
-		syntaxProfiles = {},
-		--- @type table<string, string> [Emmet Docs](https://docs.emmet.io/customization/snippets/#variables)
-		variables = {},
-	},
-})
-
-vim.lsp.config('zls', {
-	on_attach = lsp_on_attach,
-	-- settings = {
-	-- 	zls = {
-	--
-	--
-	-- 	},
-	-- },
-})
--- pasza: vim.keymap.set("i", "jj", "<Esc>")
-
-vim.lsp.config('tinymist', {
-	on_attach = lsp_on_attach,
-	settings = {
-		formatterMode = "typstyle",
-		exportPdf = "onType",
-		semanticTokens = "disable"
-	}
-})
-
-vim.lsp.enable('janet')
-vim.lsp.enable('lua_ls')
-vim.lsp.enable('gopls')
-vim.lsp.enable('pyright')
-vim.lsp.enable('jdtls')
-vim.lsp.enable('clangd')
-vim.lsp.enable('astro')
-vim.lsp.enable('templ')
-vim.lsp.enable('ocamllsp')
-vim.lsp.enable('elixirls')
-vim.lsp.enable('ts_ls')
-vim.lsp.enable('nixd')
-vim.lsp.enable('emmet_language_server')
-vim.lsp.enable('zls')
-vim.lsp.enable('tinymist')
-
+lsp_helpers.setup()
 
 -- vim.keymap.set("n", "<M-b>", ":Ex<CR>")
 
